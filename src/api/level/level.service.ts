@@ -6,7 +6,7 @@ import { Level } from './entities/level.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class LevelsService {
+export class LevelService {
   @InjectRepository(Level)
   private readonly repository: Repository<Level>;
 
@@ -19,7 +19,7 @@ export class LevelsService {
     return this.repository.find();
   }
 
-  async findOneById(id: string) {
+  async findOneById(id: string): Promise<Level> {
     return this.repository.findOneBy({ id });
   }
 

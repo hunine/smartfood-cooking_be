@@ -4,13 +4,13 @@ import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { Repository } from 'typeorm';
-import { LevelsService } from '@api/levels/levels.service';
-import { Level } from '@api/levels/entities';
+import { LevelService } from '@api/level/level.service';
+import { Level } from '@api/level/entities';
 
 @Injectable()
-export class RecipesService {
+export class RecipeService {
   @InjectRepository(Recipe) private readonly repository: Repository<Recipe>;
-  @Inject(LevelsService) private readonly levelService: LevelsService;
+  @Inject(LevelService) private readonly levelService: LevelService;
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     const level: Level = await this.levelService.findOneById(
@@ -30,7 +30,7 @@ export class RecipesService {
     });
   }
 
-  async findOne(id: string): Promise<Recipe> {
+  async findOneById(id: string): Promise<Recipe> {
     return this.repository.findOneBy({ id });
   }
 

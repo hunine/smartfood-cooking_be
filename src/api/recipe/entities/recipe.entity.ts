@@ -1,4 +1,4 @@
-import { Level } from '@api/levels/entities';
+import { Level } from '@api/level/entities';
 import { BaseEntity } from '@base/base.entity';
 import {
   Column,
