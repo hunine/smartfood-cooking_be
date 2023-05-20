@@ -10,6 +10,9 @@ async function bootstrap() {
   const config: ConfigService = app.get(ConfigService);
   const port: number = config.get<number>('PORT');
 
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.setGlobalPrefix('api');
+
   const configSwagger = new DocumentBuilder()
     .setTitle('Smartfood API docs')
     .setVersion('1.0.0')
@@ -18,10 +21,8 @@ async function bootstrap() {
 
   SwaggerModule.setup('docs', app, document);
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-
   await app.listen(port, () => {
-    console.log('[WEB] -', config.get<string>('BASE_URL'));
+    console.log('[SWAGGER UI] -', config.get<string>('BASE_URL') + '/docs');
   });
 }
 bootstrap();

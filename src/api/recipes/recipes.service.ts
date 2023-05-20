@@ -1,25 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { Repository } from 'typeorm';
+import { LevelsService } from '@api/levels/levels.service';
+import { Level } from '@api/levels/entities';
 
 @Injectable()
 export class RecipesService {
-  @InjectRepository(Recipe)
-  private readonly repository: Repository<Recipe>;
+  @InjectRepository(Recipe) private readonly repository: Repository<Recipe>;
+  @Inject(LevelsService) private readonly levelService: LevelsService;
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
-    const recipe: Recipe = this.repository.create(createRecipeDto);
+    const level: Level = await this.levelService.findOneById(
+      createRecipeDto.levelId
+    );
+    const recipe: Recipe = this.repository.create({
+      ...createRecipeDto,
+      level,
+    });
+
     return this.repository.save(recipe);
   }
 
-  findAll(): Promise<Recipe[]> {
-    return this.repository.find();
+  async findAll(): Promise<Recipe[]> {
+    return this.repository.find({
+      relations: ['level'],
+    });
   }
 
-  findOne(id: string): Promise<Recipe> {
+  async findOne(id: string): Promise<Recipe> {
     return this.repository.findOneBy({ id });
   }
 
