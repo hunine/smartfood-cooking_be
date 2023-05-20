@@ -11,4 +11,9 @@ export class CreateRecipeDto {
   @IsString()
   @IsOptional()
   public description?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  public levelId!: string;
 }

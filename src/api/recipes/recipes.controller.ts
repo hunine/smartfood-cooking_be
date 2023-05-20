@@ -19,17 +19,17 @@ export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
   @Get()
-  findAll(): Promise<Recipe[]> {
+  async findAll(): Promise<Recipe[]> {
     return this.recipesService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.recipesService.findOne(id);
   }
 
   @Post()
-  create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
+  async create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     return this.recipesService.create(createRecipeDto);
   }
 
