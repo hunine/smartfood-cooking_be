@@ -1,4 +1,4 @@
-import { Recipe } from '@api/recipes/entities';
+import { Recipe } from '@api/recipe/entities';
 import { BaseEntity } from 'src/shared/base';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 

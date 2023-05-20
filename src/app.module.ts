@@ -6,8 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
 
-import { RecipesModule } from './api/recipes/recipes.module';
-import { LevelsModule } from './api/levels/levels.module';
+import { RecipeModule } from './api/recipe/recipe.module';
+import { LevelModule } from './api/level/level.module';
+import { CuisineModule } from './api/cuisine/cuisine.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
@@ -15,8 +16,9 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
-    RecipesModule,
-    LevelsModule,
+    RecipeModule,
+    LevelModule,
+    CuisineModule,
   ],
   controllers: [AppController],
   providers: [AppService],
