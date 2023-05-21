@@ -1,12 +1,14 @@
 import { Category } from '@api/category/entities';
 import { Cuisine } from '@api/cuisine/entities';
 import { Level } from '@api/level/entities';
+import { Quantification } from '@api/quantification/entities';
 import { BaseEntity } from '@base/base.entity';
 import {
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -32,4 +34,7 @@ export class Recipe extends BaseEntity {
   @ManyToOne(() => Cuisine, (cuisine) => cuisine.recipes)
   @JoinColumn({ name: 'cuisineId' })
   cuisine: Cuisine;
+
+  @OneToMany(() => Quantification, (quantification) => quantification.recipe)
+  quantification: Quantification[];
 }
