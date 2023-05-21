@@ -9,6 +9,7 @@ import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
 import { RecipeModule } from './api/recipe/recipe.module';
 import { LevelModule } from './api/level/level.module';
 import { CuisineModule } from './api/cuisine/cuisine.module';
+import { CategoryModule } from './api/category/category.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
@@ -19,6 +20,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
     RecipeModule,
     LevelModule,
     CuisineModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -19,7 +19,7 @@ export class CuisineService {
   }
 
   async findOneById(id: string): Promise<Cuisine> {
-    return this.repository.findOneBy({ id });
+    return this.repository.findOneByOrFail({ id });
   }
 
   update(id: number, updateCuisineDto: UpdateCuisineDto) {
