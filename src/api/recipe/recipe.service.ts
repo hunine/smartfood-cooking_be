@@ -46,7 +46,16 @@ export class RecipeService {
   }
 
   async findOneById(id: string): Promise<Recipe> {
-    return this.repository.findOneByOrFail({ id });
+    return this.repository.findOneOrFail({
+      relations: [
+        'level',
+        'category',
+        'cuisine',
+        'quantification',
+        'quantification.ingredient',
+      ],
+      where: { id },
+    });
   }
 
   update(id: number, updateRecipeDto: UpdateRecipeDto) {

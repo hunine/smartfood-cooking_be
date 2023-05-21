@@ -10,6 +10,8 @@ import { RecipeModule } from './api/recipe/recipe.module';
 import { LevelModule } from './api/level/level.module';
 import { CuisineModule } from './api/cuisine/cuisine.module';
 import { CategoryModule } from './api/category/category.module';
+import { IngredientModule } from './api/ingredient/ingredient.module';
+import { QuantificationModule } from './api/quantification/quantification.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
@@ -17,10 +19,12 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
-    RecipeModule,
+    QuantificationModule,
     LevelModule,
     CuisineModule,
     CategoryModule,
+    IngredientModule,
+    RecipeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
