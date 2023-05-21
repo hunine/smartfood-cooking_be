@@ -20,7 +20,11 @@ export class LevelService {
   }
 
   async findOneById(id: string): Promise<Level> {
-    return this.repository.findOneBy({ id });
+    try {
+      return this.repository.findOneByOrFail({ id });
+    } catch (error) {
+      throw error;
+    }
   }
 
   update(id: number, updateLevelDto: UpdateLevelDto) {

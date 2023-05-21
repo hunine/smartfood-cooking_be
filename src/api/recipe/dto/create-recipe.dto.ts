@@ -16,4 +16,14 @@ export class CreateRecipeDto {
   @IsString()
   @IsNotEmpty()
   public levelId!: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  public categoryId!: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  public cuisineId!: string;
 }
