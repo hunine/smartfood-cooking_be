@@ -3,7 +3,7 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recipe } from './entities/recipe.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { LevelService } from '@api/level/level.service';
 import { Level } from '@api/level/entities';
 import { Category } from '@api/category/entities';
@@ -55,6 +55,29 @@ export class RecipeService {
         'quantification.ingredient',
       ],
       where: { id },
+    });
+  }
+
+  async findByIngredientIds(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
+    return this.repository.find({
+      relations: [
+        'level',
+        'category',
+        'cuisine',
+        'quantification',
+        'quantification.ingredient',
+      ],
+      where: {
+        quantification: {
+          ingredient: {
+            id: In(ids),
+          },
+        },
+      },
     });
   }
 
