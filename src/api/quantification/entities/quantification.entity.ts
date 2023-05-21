@@ -1,7 +1,7 @@
 import { Ingredient } from '@api/ingredient/entities';
 import { Recipe } from '@api/recipe/entities';
 import { BaseEntity } from '@base/base.entity';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Quantification extends BaseEntity {
@@ -17,11 +17,11 @@ export class Quantification extends BaseEntity {
   @Column({ type: 'varchar' })
   public unit: string;
 
-  @OneToOne(() => Recipe, (recipe) => recipe.quantification)
+  @ManyToOne(() => Recipe, (recipe) => recipe.quantification)
   @JoinColumn({ name: 'recipeId' })
   recipe: Recipe;
 
-  @OneToOne(() => Ingredient, (ingredient) => ingredient.quantification)
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.quantification)
   @JoinColumn({ name: 'ingredientId' })
   ingredient: Ingredient;
 }

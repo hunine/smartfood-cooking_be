@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -17,6 +18,11 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('recipes')
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
+
+  @Get('ingredients')
+  async findByIngredient(@Query('ids') ids: string[]) {
+    return this.recipeService.findByIngredientIds(ids);
+  }
 
   @Get()
   async findAll(): Promise<Recipe[]> {
