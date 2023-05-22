@@ -1,8 +1,19 @@
+import { Media } from '@api/media/entities';
 import { Quantification } from '@api/quantification/entities';
 import { BaseEntity } from '@base/base.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity('ingredients')
 export class Ingredient extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   public id!: string;
@@ -12,7 +23,38 @@ export class Ingredient extends BaseEntity {
 
   @OneToMany(
     () => Quantification,
-    (quantification) => quantification.ingredient
+    (quantification) => quantification.ingredient,
   )
   quantification: Quantification[];
+
+  @ManyToMany(() => Media, (media) => media.ingredient)
+  @JoinTable({
+    name: 'ingredients_media',
+    joinColumn: {
+      name: 'ingredient_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'media_id',
+      referencedColumnName: 'id',
+    },
+  })
+  media: Media[];
+}
+
+@Entity('ingredients_media')
+export class IngredientMedia {
+  @PrimaryColumn({ name: 'ingredient_id' })
+  ingredientId: number;
+
+  @PrimaryColumn({ name: 'media_id' })
+  mediaId: number;
+
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.media)
+  @JoinColumn([{ name: 'ingredient_id', referencedColumnName: 'id' }])
+  ingredients: Ingredient[];
+
+  @ManyToOne(() => Media, (media) => media.ingredient)
+  @JoinColumn([{ name: 'media_id', referencedColumnName: 'id' }])
+  media: Media[];
 }
