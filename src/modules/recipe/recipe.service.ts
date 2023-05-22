@@ -4,12 +4,12 @@ import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { In, Repository } from 'typeorm';
-import { LevelService } from '@api/level/level.service';
-import { Level } from '@api/level/entities';
-import { Category } from '@api/category/entities';
-import { CategoryService } from '@api/category/category.service';
-import { CuisineService } from '@api/cuisine/cuisine.service';
-import { Cuisine } from '@api/cuisine/entities';
+import { LevelService } from 'src/modules/level/level.service';
+import { Level } from 'src/modules/level/entities';
+import { Category } from 'src/modules/category/entities';
+import { CategoryService } from 'src/modules/category/category.service';
+import { CuisineService } from 'src/modules/cuisine/cuisine.service';
+import { Cuisine } from 'src/modules/cuisine/entities';
 
 @Injectable()
 export class RecipeService {

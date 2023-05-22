@@ -1,5 +1,5 @@
-import { Media } from '@api/media/entities';
-import { Recipe } from '@api/recipe/entities';
+import { Media } from 'src/modules/media/entities';
+import { Recipe } from 'src/modules/recipe/entities';
 import { BaseEntity } from '@base/base.entity';
 import {
   Column,
