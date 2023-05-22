@@ -18,7 +18,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@api/*": ["src/api/*"],
+      "@api/*": ["src/modules/*"],
       "@base/*": ["src/shared/base/*"],
       "@Helper/*": ["src/common/helper/*"]
     }

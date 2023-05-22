@@ -6,14 +6,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
 
-import { RecipeModule } from './api/recipe/recipe.module';
-import { LevelModule } from './api/level/level.module';
-import { CuisineModule } from './api/cuisine/cuisine.module';
-import { CategoryModule } from './api/category/category.module';
-import { IngredientModule } from './api/ingredient/ingredient.module';
-import { QuantificationModule } from './api/quantification/quantification.module';
-import { RecipeStepModule } from './api/recipe-step/recipe-step.module';
-import { MediaModule } from './api/media/media.module';
+import { RecipeModule } from './modules/recipe/recipe.module';
+import { LevelModule } from './modules/level/level.module';
+import { CuisineModule } from './modules/cuisine/cuisine.module';
+import { CategoryModule } from './modules/category/category.module';
+import { IngredientModule } from './modules/ingredient/ingredient.module';
+import { QuantificationModule } from './modules/quantification/quantification.module';
+import { RecipeStepModule } from './modules/recipe-step/recipe-step.module';
+import { MediaModule } from './modules/media/media.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 

@@ -1,9 +1,9 @@
-import { Category } from '@api/category/entities';
-import { Cuisine } from '@api/cuisine/entities';
-import { Level } from '@api/level/entities';
-import { Media } from '@api/media/entities';
-import { Quantification } from '@api/quantification/entities';
-import { RecipeStep } from '@api/recipe-step/entities';
+import { Category } from 'src/modules/category/entities';
+import { Cuisine } from 'src/modules/cuisine/entities';
+import { Level } from 'src/modules/level/entities';
+import { Media } from 'src/modules/media/entities';
+import { Quantification } from 'src/modules/quantification/entities';
+import { RecipeStep } from 'src/modules/recipe-step/entities';
 import { BaseEntity } from '@base/base.entity';
 import {
   Column,

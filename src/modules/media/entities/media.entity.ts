@@ -1,6 +1,6 @@
-import { Ingredient } from '@api/ingredient/entities';
-import { RecipeStep } from '@api/recipe-step/entities';
-import { Recipe } from '@api/recipe/entities';
+import { Ingredient } from 'src/modules/ingredient/entities';
+import { RecipeStep } from 'src/modules/recipe-step/entities';
+import { Recipe } from 'src/modules/recipe/entities';
 import { BaseEntity } from '@base/base.entity';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
