@@ -20,13 +20,13 @@ export class RecipeService {
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     const level: Level = await this.levelService.findOneById(
-      createRecipeDto.levelId
+      createRecipeDto.levelId,
     );
     const category: Category = await this.categoryService.findOneById(
-      createRecipeDto.categoryId
+      createRecipeDto.categoryId,
     );
     const cuisine: Cuisine = await this.cuisineService.findOneById(
-      createRecipeDto.cuisineId
+      createRecipeDto.cuisineId,
     );
 
     const recipe: Recipe = this.repository.create({
@@ -41,7 +41,7 @@ export class RecipeService {
 
   async findAll(): Promise<Recipe[]> {
     return this.repository.find({
-      relations: ['level', 'category', 'cuisine'],
+      relations: ['level', 'category', 'cuisine', 'media'],
     });
   }
 
@@ -49,8 +49,9 @@ export class RecipeService {
     return this.repository.findOneOrFail({
       relations: [
         'level',
-        'category',
+        'media',
         'cuisine',
+        'category',
         'quantification',
         'quantification.ingredient',
       ],

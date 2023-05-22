@@ -5,10 +5,10 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Quantification extends BaseEntity {
-  @PrimaryColumn('uuid')
+  @PrimaryColumn({ type: 'uuid', name: 'recipe_id' })
   recipeId: string;
 
-  @PrimaryColumn('uuid')
+  @PrimaryColumn({ type: 'uuid', name: 'ingredient_id' })
   ingredientId: string;
 
   @Column({ type: 'decimal' })

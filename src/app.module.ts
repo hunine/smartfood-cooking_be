@@ -12,6 +12,8 @@ import { CuisineModule } from './api/cuisine/cuisine.module';
 import { CategoryModule } from './api/category/category.module';
 import { IngredientModule } from './api/ingredient/ingredient.module';
 import { QuantificationModule } from './api/quantification/quantification.module';
+import { RecipeStepModule } from './api/recipe-step/recipe-step.module';
+import { MediaModule } from './api/media/media.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
@@ -25,6 +27,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
     CategoryModule,
     IngredientModule,
     RecipeModule,
+    RecipeStepModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

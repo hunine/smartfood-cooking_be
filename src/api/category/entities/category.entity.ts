@@ -2,7 +2,7 @@ import { Recipe } from '@api/recipe/entities';
 import { BaseEntity } from '@base/base.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('categories')
 export class Category extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   public id!: string;
