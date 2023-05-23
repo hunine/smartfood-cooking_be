@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { QuantificationService } from './quantification.service';
-import { QuantificationController } from './quantification.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Quantification } from './entities/quantification.entity';
+import { DatabaseModule } from '@app/base/database/database.module';
+import { quantificationProvider } from './quantification.provider';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Quantification])],
-  controllers: [QuantificationController],
-  providers: [QuantificationService],
+  imports: [DatabaseModule],
+  controllers: [],
+  providers: [...quantificationProvider],
 })
 export class QuantificationModule {}

@@ -29,15 +29,15 @@ export class Recipe extends BaseEntity {
   public description: string;
 
   @ManyToOne(() => Level, (level) => level.recipes)
-  @JoinColumn({ name: 'levelId' })
+  @JoinColumn({ name: 'level_id' })
   level: Level;
 
   @ManyToOne(() => Category, (category) => category.recipes)
-  @JoinColumn({ name: 'categoryId' })
+  @JoinColumn({ name: 'category_id' })
   category: Category;
 
   @ManyToOne(() => Cuisine, (cuisine) => cuisine.recipes)
-  @JoinColumn({ name: 'cuisineId' })
+  @JoinColumn({ name: 'cuisine_id' })
   cuisine: Cuisine;
 
   @OneToMany(() => Quantification, (quantification) => quantification.recipe)

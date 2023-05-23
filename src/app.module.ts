@@ -1,11 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { getEnvPath } from './common/helper/env.helper';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
-
+import { DatabaseModule } from './modules/base/database/database.module';
 import { RecipeModule } from './modules/recipe/recipe.module';
 import { LevelModule } from './modules/level/level.module';
 import { CuisineModule } from './modules/cuisine/cuisine.module';
@@ -15,12 +9,9 @@ import { QuantificationModule } from './modules/quantification/quantification.mo
 import { RecipeStepModule } from './modules/recipe-step/recipe-step.module';
 import { MediaModule } from './modules/media/media.module';
 
-const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
-
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath, isGlobal: true }),
-    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
+    DatabaseModule,
     QuantificationModule,
     LevelModule,
     CuisineModule,
@@ -29,8 +20,9 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
     RecipeModule,
     RecipeStepModule,
     MediaModule,
+    DatabaseModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

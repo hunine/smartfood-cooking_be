@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { RecipeStepService } from './recipe-step.service';
 import { RecipeStepController } from './recipe-step.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RecipeStep } from './entities';
+import { DatabaseModule } from '@app/base/database/database.module';
+import { recipeStepProvider } from './recipe-step.provider';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RecipeStep])],
+  imports: [DatabaseModule],
   controllers: [RecipeStepController],
-  providers: [RecipeStepService],
+  providers: [RecipeStepService, ...recipeStepProvider],
 })
 export class RecipeStepModule {}

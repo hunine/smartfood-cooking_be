@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { LevelService } from './level.service';
 import { LevelController } from './level.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Level } from './entities/level.entity';
+import { DatabaseModule } from '@app/base/database/database.module';
+import { levelProvider } from './level.provider';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Level])],
+  imports: [DatabaseModule],
   controllers: [LevelController],
-  providers: [LevelService],
+  providers: [LevelService, ...levelProvider],
   exports: [LevelService],
 })
 export class LevelModule {}

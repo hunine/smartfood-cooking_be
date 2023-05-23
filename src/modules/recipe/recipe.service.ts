@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { In, Repository } from 'typeorm';
 import { LevelService } from 'src/modules/level/level.service';
@@ -10,13 +9,17 @@ import { Category } from 'src/modules/category/entities';
 import { CategoryService } from 'src/modules/category/category.service';
 import { CuisineService } from 'src/modules/cuisine/cuisine.service';
 import { Cuisine } from 'src/modules/cuisine/entities';
+import { RecipeProvider } from './recipe.provider';
 
 @Injectable()
 export class RecipeService {
-  @InjectRepository(Recipe) private readonly repository: Repository<Recipe>;
-  @Inject(LevelService) private readonly levelService: LevelService;
-  @Inject(CategoryService) private readonly categoryService: CategoryService;
-  @Inject(CuisineService) private readonly cuisineService: CuisineService;
+  constructor(
+    @Inject(RecipeProvider.REPOSITORY)
+    private readonly repository: Repository<Recipe>,
+    private readonly levelService: LevelService,
+    private readonly categoryService: CategoryService,
+    private readonly cuisineService: CuisineService,
+  ) {}
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     const level: Level = await this.levelService.findOneById(

@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateCuisineDto } from './dto/create-cuisine.dto';
 import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { Cuisine } from './entities';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CuisineProvider } from './cuisine.provider';
 
 @Injectable()
 export class CuisineService {
-  @InjectRepository(Cuisine) private readonly repository: Repository<Cuisine>;
+  constructor(
+    @Inject(CuisineProvider.REPOSITORY)
+    private readonly repository: Repository<Cuisine>,
+  ) {}
 
   async create(createCuisineDto: CreateCuisineDto): Promise<Cuisine> {
     const cuisine: Cuisine = this.repository.create(createCuisineDto);
