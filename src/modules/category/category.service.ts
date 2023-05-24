@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities';
+import { CategoryProvider } from './category.provider';
 
 @Injectable()
 export class CategoryService {
-  @InjectRepository(Category) private readonly repository: Repository<Category>;
+  constructor(
+    @Inject(CategoryProvider.REPOSITORY)
+    private readonly repository: Repository<Category>,
+  ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     const category: Category = this.repository.create(createCategoryDto);

@@ -18,10 +18,10 @@ export class Quantification extends BaseEntity {
   public unit: string;
 
   @ManyToOne(() => Recipe, (recipe) => recipe.quantification)
-  @JoinColumn({ name: 'recipeId' })
+  @JoinColumn({ name: 'recipe_id' })
   recipe: Recipe;
 
   @ManyToOne(() => Ingredient, (ingredient) => ingredient.quantification)
-  @JoinColumn({ name: 'ingredientId' })
+  @JoinColumn({ name: 'ingredient_id' })
   ingredient: Ingredient;
 }

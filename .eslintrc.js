@@ -10,10 +10,14 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
   ],
+  settings: {
+    'import/resolver': {
+      typescript: {},
+    },
+  },
   root: true,
   env: {
     node: true,
-    jest: true,
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {

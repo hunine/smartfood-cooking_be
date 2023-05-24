@@ -1,5 +1,5 @@
-import { Media } from 'src/modules/media/entities';
-import { Quantification } from 'src/modules/quantification/entities';
+import { Media } from '@app/media/entities';
+import { Quantification } from '@app/quantification/entities';
 import { BaseEntity } from '@base/base.entity';
 import {
   Column,

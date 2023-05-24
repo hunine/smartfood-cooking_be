@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { IngredientService } from './ingredient.service';
 import { IngredientController } from './ingredient.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Ingredient } from './entities';
+import { DatabaseModule } from '@app/base/database/database.module';
+import { ingredientProvider } from './ingredient.provider';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ingredient])],
+  imports: [DatabaseModule],
   controllers: [IngredientController],
-  providers: [IngredientService],
+  providers: [IngredientService, ...ingredientProvider],
 })
 export class IngredientModule {}

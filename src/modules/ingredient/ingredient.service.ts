@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { IngredientProvider } from './ingredient.provider';
 
 @Injectable()
 export class IngredientService {
-  @InjectRepository(Ingredient)
-  private readonly repository: Repository<Ingredient>;
+  constructor(
+    @Inject(IngredientProvider.REPOSITORY)
+    private readonly repository: Repository<Ingredient>,
+  ) {}
 
   async create(createIngredientDto: CreateIngredientDto): Promise<Ingredient> {
     const ingredient: Ingredient = this.repository.create(createIngredientDto);
