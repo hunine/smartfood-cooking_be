@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { Level } from './entities/level.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { LevelProvider } from './level.provider';
 
 @Injectable()
@@ -44,6 +44,20 @@ export class LevelService {
     try {
       const level: Level = await this.findOneById(id);
       return this.repository.softRemove(level);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async multipleRemove(ids: string[]) {
+    try {
+      const levels: Level[] = await this.repository.find({
+        where: {
+          id: In(ids),
+        },
+      });
+
+      return this.repository.softRemove(levels);
     } catch (error) {
       throw error;
     }
