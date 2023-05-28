@@ -50,6 +50,10 @@ export class LevelService {
   }
 
   async multipleRemove(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
     try {
       const levels: Level[] = await this.repository.find({
         where: {

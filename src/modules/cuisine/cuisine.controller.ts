@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CuisineService } from './cuisine.service';
 import { CreateCuisineDto } from './dto/create-cuisine.dto';
@@ -34,11 +35,16 @@ export class CuisineController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCuisineDto: UpdateCuisineDto) {
-    return this.cuisineService.update(+id, updateCuisineDto);
+    return this.cuisineService.update(id, updateCuisineDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.cuisineService.remove(+id);
+    return this.cuisineService.remove(id);
+  }
+
+  @Delete()
+  async multipleRemove(@Query('ids') ids: string[]) {
+    return this.cuisineService.multipleRemove(ids);
   }
 }
