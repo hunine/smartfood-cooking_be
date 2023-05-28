@@ -29,11 +29,23 @@ export class LevelService {
     }
   }
 
-  update(id: number, updateLevelDto: UpdateLevelDto) {
-    return `This action updates a #${id} level`;
+  async update(id: string, updateLevelDto: UpdateLevelDto): Promise<Level> {
+    try {
+      return this.repository.save({
+        id,
+        ...updateLevelDto,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} level`;
+  async remove(id: string) {
+    try {
+      const level: Level = await this.findOneById(id);
+      return this.repository.softRemove(level);
+    } catch (error) {
+      throw error;
+    }
   }
 }
