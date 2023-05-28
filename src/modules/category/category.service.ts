@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Category } from './entities';
 import { CategoryProvider } from './category.provider';
 
@@ -25,11 +25,41 @@ export class CategoryService {
     return this.repository.findOneByOrFail({ id });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      return this.repository.save({
+        id,
+        ...updateCategoryDto,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: string) {
+    try {
+      const category: Category = await this.findOneById(id);
+      return this.repository.softRemove(category);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async multipleRemove(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
+    try {
+      const categories: Category[] = await this.repository.find({
+        where: {
+          id: In(ids),
+        },
+      });
+
+      return this.repository.softRemove(categories);
+    } catch (error) {
+      throw error;
+    }
   }
 }
