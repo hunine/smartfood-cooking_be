@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateCuisineDto } from './dto/create-cuisine.dto';
 import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { Cuisine } from './entities';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CuisineProvider } from './cuisine.provider';
 
 @Injectable()
@@ -25,11 +25,41 @@ export class CuisineService {
     return this.repository.findOneByOrFail({ id });
   }
 
-  update(id: number, updateCuisineDto: UpdateCuisineDto) {
-    return `This action updates a #${id} cuisine`;
+  async update(id: string, updateCuisineDto: UpdateCuisineDto) {
+    try {
+      return this.repository.save({
+        id,
+        ...updateCuisineDto,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cuisine`;
+  async remove(id: string) {
+    try {
+      const cuisine: Cuisine = await this.findOneById(id);
+      return this.repository.softRemove(cuisine);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async multipleRemove(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
+    try {
+      const cuisineArray: Cuisine[] = await this.repository.find({
+        where: {
+          id: In(ids),
+        },
+      });
+
+      return this.repository.softRemove(cuisineArray);
+    } catch (error) {
+      throw error;
+    }
   }
 }
