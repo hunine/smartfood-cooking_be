@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { IngredientProvider } from './ingredient.provider';
 
 @Injectable()
@@ -25,11 +25,41 @@ export class IngredientService {
     return this.repository.findOneByOrFail({ id });
   }
 
-  update(id: number, updateIngredientDto: UpdateIngredientDto) {
-    return `This action updates a #${id} ingredient`;
+  async update(id: string, updateIngredientDto: UpdateIngredientDto) {
+    try {
+      return this.repository.save({
+        id,
+        ...updateIngredientDto,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} ingredient`;
+  async remove(id: string) {
+    try {
+      const ingredient: Ingredient = await this.findOneById(id);
+      return this.repository.softRemove(ingredient);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async multipleRemove(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
+    try {
+      const ingredients: Ingredient[] = await this.repository.find({
+        where: {
+          id: In(ids),
+        },
+      });
+
+      return this.repository.softRemove(ingredients);
+    } catch (error) {
+      throw error;
+    }
   }
 }
