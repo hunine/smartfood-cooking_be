@@ -18,8 +18,15 @@ import {
   Paginate,
   PaginateQuery,
   Paginated,
+  PaginationType,
   paginate,
 } from 'nestjs-paginate';
+
+interface PaginateOptions {
+  page?: number;
+  limit?: number;
+  route?: string;
+}
 
 @Injectable()
 export class RecipeService {
@@ -81,9 +88,6 @@ export class RecipeService {
   }
 
   async findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Recipe>> {
-    // return this.repository.find({
-    //   relations: ['level', 'category', 'cuisine', 'media'],
-    // });
     return paginate(query, this.repository, {
       relations: ['level', 'category', 'cuisine', 'media'],
       sortableColumns: ['id', 'name'],
@@ -104,7 +108,22 @@ export class RecipeService {
         'media.url',
       ],
       filterableColumns: {
-        name: [FilterOperator.EQ, FilterSuffix.NOT],
+        name: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
+        'level.name': [
+          FilterOperator.EQ,
+          FilterOperator.ILIKE,
+          FilterSuffix.NOT,
+        ],
+        'category.name': [
+          FilterOperator.EQ,
+          FilterOperator.ILIKE,
+          FilterSuffix.NOT,
+        ],
+        'cuisine.name': [
+          FilterOperator.EQ,
+          FilterOperator.ILIKE,
+          FilterSuffix.NOT,
+        ],
       },
     });
   }
