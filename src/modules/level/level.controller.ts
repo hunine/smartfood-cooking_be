@@ -34,12 +34,15 @@ export class LevelController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLevelDto: UpdateLevelDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateLevelDto: UpdateLevelDto,
+  ) {
     return this.levelService.update(id, updateLevelDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.levelService.remove(id);
   }
 

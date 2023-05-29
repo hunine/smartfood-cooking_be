@@ -85,11 +85,41 @@ export class RecipeService {
     });
   }
 
-  update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    return `This action updates a #${id} recipe`;
+  async update(id: string, updateRecipeDto: UpdateRecipeDto) {
+    try {
+      return this.repository.save({
+        id,
+        ...updateRecipeDto,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} recipe`;
+  async remove(id: string) {
+    try {
+      const recipe: Recipe = await this.findOneById(id);
+      return this.repository.softRemove(recipe);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async multipleRemove(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
+    try {
+      const recipes: Recipe[] = await this.repository.find({
+        where: {
+          id: In(ids),
+        },
+      });
+
+      return this.repository.softRemove(recipes);
+    } catch (error) {
+      throw error;
+    }
   }
 }
