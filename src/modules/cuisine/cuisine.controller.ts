@@ -34,12 +34,15 @@ export class CuisineController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCuisineDto: UpdateCuisineDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCuisineDto: UpdateCuisineDto,
+  ) {
     return this.cuisineService.update(id, updateCuisineDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.cuisineService.remove(id);
   }
 

@@ -34,7 +34,7 @@ export class IngredientController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateIngredientDto: UpdateIngredientDto,
   ) {
@@ -42,7 +42,7 @@ export class IngredientController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.ingredientService.remove(id);
   }
 

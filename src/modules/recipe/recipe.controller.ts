@@ -40,12 +40,20 @@ export class RecipeController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto) {
-    return this.recipeService.update(+id, updateRecipeDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateRecipeDto: UpdateRecipeDto,
+  ) {
+    return this.recipeService.update(id, updateRecipeDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recipeService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return this.recipeService.remove(id);
+  }
+
+  @Delete()
+  async multipleRemove(@Query('ids') ids: string[]) {
+    return this.recipeService.multipleRemove(ids);
   }
 }

@@ -10,6 +10,8 @@ import { CategoryService } from 'src/modules/category/category.service';
 import { CuisineService } from 'src/modules/cuisine/cuisine.service';
 import { Cuisine } from 'src/modules/cuisine/entities';
 import { RecipeProvider } from './recipe.provider';
+import { Quantification } from '@app/quantification/entities';
+import { RecipeStep } from '@app/recipe-step/entities';
 
 @Injectable()
 export class RecipeService {
@@ -22,24 +24,52 @@ export class RecipeService {
   ) {}
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
-    const level: Level = await this.levelService.findOneById(
-      createRecipeDto.levelId,
-    );
-    const category: Category = await this.categoryService.findOneById(
-      createRecipeDto.categoryId,
-    );
-    const cuisine: Cuisine = await this.cuisineService.findOneById(
-      createRecipeDto.cuisineId,
-    );
+    let resultRecipe: Recipe;
 
-    const recipe: Recipe = this.repository.create({
-      ...createRecipeDto,
-      level,
-      cuisine,
-      category,
+    await this.repository.manager.transaction(async (manager) => {
+      const level: Level = await this.levelService.findOneById(
+        createRecipeDto.levelId,
+      );
+      const category: Category = await this.categoryService.findOneById(
+        createRecipeDto.categoryId,
+      );
+      const cuisine: Cuisine = await this.cuisineService.findOneById(
+        createRecipeDto.cuisineId,
+      );
+
+      // Create recipe
+      const recipe: Recipe = this.repository.create({
+        ...createRecipeDto,
+        level,
+        cuisine,
+        category,
+      });
+
+      resultRecipe = await manager.save(recipe);
+
+      // Create quantification
+      const quantificationArray: Quantification[] =
+        createRecipeDto.ingredients.map((ingredient) => {
+          return manager.create(Quantification, {
+            ...ingredient,
+            recipeId: resultRecipe.id,
+          });
+        });
+
+      await manager.save(quantificationArray);
+
+      // Create recipe steps
+      const steps: RecipeStep[] = createRecipeDto.steps.map((step) => {
+        return manager.create(RecipeStep, {
+          ...step,
+          recipe: resultRecipe,
+        });
+      });
+
+      await manager.save(steps);
     });
 
-    return this.repository.save(recipe);
+    return resultRecipe;
   }
 
   async findAll(): Promise<Recipe[]> {
@@ -57,8 +87,14 @@ export class RecipeService {
         'category',
         'quantification',
         'quantification.ingredient',
+        'recipeStep',
       ],
       where: { id },
+      order: {
+        recipeStep: {
+          order: 'ASC',
+        },
+      },
     });
   }
 
@@ -85,11 +121,81 @@ export class RecipeService {
     });
   }
 
-  update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    return `This action updates a #${id} recipe`;
+  async update(id: string, updateRecipeDto: UpdateRecipeDto): Promise<Recipe> {
+    try {
+      this.repository.manager.transaction(async (manager) => {
+        const recipe: Recipe = await this.findOneById(id);
+        const level: Level = await this.levelService.findOneById(
+          updateRecipeDto.levelId,
+        );
+        const category: Category = await this.categoryService.findOneById(
+          updateRecipeDto.categoryId,
+        );
+        const cuisine: Cuisine = await this.cuisineService.findOneById(
+          updateRecipeDto.cuisineId,
+        );
+
+        // Update quantification
+        const quantificationArray = updateRecipeDto.ingredients.map(
+          (ingredient) => ({
+            ...ingredient,
+            recipeId: id,
+          }),
+        );
+
+        await manager.save(Quantification, quantificationArray);
+
+        // Update recipe steps
+        const steps: RecipeStep[] = updateRecipeDto.steps.map((step) => {
+          return manager.create(RecipeStep, {
+            ...step,
+            recipe,
+          });
+        });
+
+        await manager.save(steps);
+
+        // Update recipe
+        await manager.save(Recipe, {
+          id,
+          level,
+          cuisine,
+          category,
+          name: updateRecipeDto.name,
+          description: updateRecipeDto.description,
+        });
+      });
+
+      return this.findOneById(id);
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} recipe`;
+  async remove(id: string) {
+    try {
+      const recipe: Recipe = await this.findOneById(id);
+      return this.repository.softRemove(recipe);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async multipleRemove(ids: string[]) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+
+    try {
+      const recipes: Recipe[] = await this.repository.find({
+        where: {
+          id: In(ids),
+        },
+      });
+
+      return this.repository.softRemove(recipes);
+    } catch (error) {
+      throw error;
+    }
   }
 }
