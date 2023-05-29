@@ -12,6 +12,14 @@ import { Cuisine } from 'src/modules/cuisine/entities';
 import { RecipeProvider } from './recipe.provider';
 import { Quantification } from '@app/quantification/entities';
 import { RecipeStep } from '@app/recipe-step/entities';
+import {
+  FilterOperator,
+  FilterSuffix,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class RecipeService {
@@ -72,9 +80,32 @@ export class RecipeService {
     return resultRecipe;
   }
 
-  async findAll(): Promise<Recipe[]> {
-    return this.repository.find({
+  async findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Recipe>> {
+    // return this.repository.find({
+    //   relations: ['level', 'category', 'cuisine', 'media'],
+    // });
+    return paginate(query, this.repository, {
       relations: ['level', 'category', 'cuisine', 'media'],
+      sortableColumns: ['id', 'name'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['name'],
+      select: [
+        'id',
+        'name',
+        'description',
+        'level.id',
+        'level.name',
+        'category.id',
+        'category.name',
+        'cuisine.id',
+        'cuisine.name',
+        'media.id',
+        'media.url',
+      ],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
     });
   }
 

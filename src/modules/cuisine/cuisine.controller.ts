@@ -12,6 +12,7 @@ import { CuisineService } from './cuisine.service';
 import { CreateCuisineDto } from './dto/create-cuisine.dto';
 import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @ApiTags('cuisine')
 @Controller('cuisine')
@@ -19,8 +20,8 @@ export class CuisineController {
   constructor(private readonly cuisineService: CuisineService) {}
 
   @Get()
-  async findAll() {
-    return this.cuisineService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.cuisineService.findAll(query);
   }
 
   @Get(':id')

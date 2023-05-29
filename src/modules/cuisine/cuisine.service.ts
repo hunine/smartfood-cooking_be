@@ -4,6 +4,13 @@ import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { Cuisine } from './entities';
 import { In, Repository } from 'typeorm';
 import { CuisineProvider } from './cuisine.provider';
+import {
+  FilterOperator,
+  FilterSuffix,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class CuisineService {
@@ -17,8 +24,17 @@ export class CuisineService {
     return this.repository.save(cuisine);
   }
 
-  async findAll(): Promise<Cuisine[]> {
-    return this.repository.find();
+  async findAll(query: PaginateQuery): Promise<Paginated<Cuisine>> {
+    return paginate(query, this.repository, {
+      sortableColumns: ['id', 'name'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['name'],
+      select: ['id', 'name'],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
+    });
   }
 
   async findOneById(id: string): Promise<Cuisine> {

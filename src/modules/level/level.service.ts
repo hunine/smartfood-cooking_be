@@ -4,6 +4,13 @@ import { UpdateLevelDto } from './dto/update-level.dto';
 import { Level } from './entities/level.entity';
 import { In, Repository } from 'typeorm';
 import { LevelProvider } from './level.provider';
+import {
+  FilterOperator,
+  FilterSuffix,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class LevelService {
@@ -17,8 +24,17 @@ export class LevelService {
     return this.repository.save(level);
   }
 
-  async findAll(): Promise<Level[]> {
-    return this.repository.find();
+  async findAll(query: PaginateQuery): Promise<Paginated<Level>> {
+    return paginate(query, this.repository, {
+      sortableColumns: ['id', 'name'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['name'],
+      select: ['id', 'name'],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
+    });
   }
 
   async findOneById(id: string): Promise<Level> {

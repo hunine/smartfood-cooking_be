@@ -4,6 +4,13 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { In, Repository } from 'typeorm';
 import { Category } from './entities';
 import { CategoryProvider } from './category.provider';
+import {
+  FilterOperator,
+  FilterSuffix,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class CategoryService {
@@ -17,8 +24,17 @@ export class CategoryService {
     return this.repository.save(category);
   }
 
-  async findAll(): Promise<Category[]> {
-    return this.repository.find();
+  async findAll(query: PaginateQuery): Promise<Paginated<Category>> {
+    return paginate(query, this.repository, {
+      sortableColumns: ['id', 'name'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['name'],
+      select: ['id', 'name'],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
+    });
   }
 
   async findOneById(id: string): Promise<Category> {
