@@ -12,6 +12,7 @@ import { IngredientService } from './ingredient.service';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @ApiTags('ingredients')
 @Controller('ingredients')
@@ -19,8 +20,8 @@ export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
   @Get()
-  async findAll() {
-    return this.ingredientService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.ingredientService.findAll(query);
   }
 
   @Get(':id')

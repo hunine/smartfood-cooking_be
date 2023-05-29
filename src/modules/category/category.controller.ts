@@ -12,6 +12,7 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -19,8 +20,8 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
-  async findAll() {
-    return this.categoryService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.categoryService.findAll(query);
   }
 
   @Get(':id')

@@ -12,6 +12,7 @@ import { LevelService } from './level.service';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @ApiTags('levels')
 @Controller('levels')
@@ -19,8 +20,8 @@ export class LevelController {
   constructor(private readonly levelService: LevelService) {}
 
   @Get()
-  async findAll() {
-    return this.levelService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.levelService.findAll(query);
   }
 
   @Get(':id')

@@ -13,6 +13,7 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @ApiTags('recipes')
 @Controller('recipes')
@@ -25,8 +26,8 @@ export class RecipeController {
   }
 
   @Get()
-  async findAll(): Promise<Recipe[]> {
-    return this.recipeService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.recipeService.findAll(query);
   }
 
   @Get(':id')

@@ -4,6 +4,13 @@ import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities';
 import { In, Repository } from 'typeorm';
 import { IngredientProvider } from './ingredient.provider';
+import {
+  FilterOperator,
+  FilterSuffix,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class IngredientService {
@@ -17,8 +24,18 @@ export class IngredientService {
     return this.repository.save(ingredient);
   }
 
-  async findAll(): Promise<Ingredient[]> {
-    return this.repository.find();
+  async findAll(query: PaginateQuery): Promise<Paginated<Ingredient>> {
+    return paginate(query, this.repository, {
+      relations: ['media'],
+      sortableColumns: ['id', 'name'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['name'],
+      select: ['id', 'name', 'media.id', 'media.url'],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterSuffix.NOT],
+      },
+    });
   }
 
   async findOneById(id: string): Promise<Ingredient> {
