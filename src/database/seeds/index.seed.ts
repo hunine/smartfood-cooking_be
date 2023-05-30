@@ -91,18 +91,41 @@ export default class DataSeeder implements Seeder {
 
     // Quantification
     const quantificationArray: Quantification[] = [];
+    const quantificationDataArray: any[] = Array.from(
+      quantificationJsonData['default'],
+    );
 
-    Array.from(quantificationJsonData['default']).forEach((item: any) => {
+    for (let i = 0; i < quantificationDataArray.length; i += 1) {
       const quantification = new Quantification();
 
-      quantification.recipe = recipeMapping[item.recipe_name];
-      quantification.ingredient = ingredientMapping[item.ingredient_name];
-      quantification.value = item.value;
-      quantification.unit = item.unit;
+      if (
+        !recipeMapping[quantificationDataArray[i].recipe_name] ||
+        !ingredientMapping[quantificationDataArray[i].ingredient_name] ||
+        !quantificationDataArray[i].value ||
+        !quantificationDataArray[i].unit
+      ) {
+        continue;
+      }
+
+      quantification.recipe =
+        recipeMapping[quantificationDataArray[i].recipe_name];
+      quantification.ingredient =
+        ingredientMapping[quantificationDataArray[i].ingredient_name];
+      quantification.value = quantificationDataArray[i].value;
+      quantification.unit = quantificationDataArray[i].unit;
 
       quantificationArray.push(quantification);
-    });
 
-    await datasource.getRepository(Quantification).save(quantificationArray);
+      if (quantificationArray.length === 1000) {
+        await datasource
+          .getRepository(Quantification)
+          .save(quantificationArray);
+        quantificationArray.length = 0;
+      }
+    }
+
+    if (quantificationArray.length > 0) {
+      await datasource.getRepository(Quantification).save(quantificationArray);
+    }
   }
 }

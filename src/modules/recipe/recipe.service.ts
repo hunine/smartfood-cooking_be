@@ -67,7 +67,7 @@ export class RecipeService {
         createRecipeDto.ingredients.map((ingredient) => {
           return manager.create(Quantification, {
             ...ingredient,
-            recipeId: resultRecipe.id,
+            recipe: resultRecipe,
           });
         });
 
