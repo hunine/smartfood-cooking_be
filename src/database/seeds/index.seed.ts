@@ -5,6 +5,8 @@ import { Cuisine } from '@app/cuisine/entities';
 import { Level } from '@app/level/entities';
 import { Ingredient } from '@app/ingredient/entities';
 import { Recipe } from '@app/recipe/entities';
+import { Quantification } from '@app/quantification/entities';
+import { RecipeStep } from '@app/recipe-step/entities';
 
 import * as categoryJsonData from '../data/categories.json';
 import * as cuisineJsonData from '../data/cuisine.json';
@@ -12,7 +14,7 @@ import * as levelJsonData from '../data/levels.json';
 import * as ingredientJsonData from '../data/ingredients.json';
 import * as recipeJsonData from '../data/recipes.json';
 import * as quantificationJsonData from '../data/quantification.json';
-import { Quantification } from '@app/quantification/entities';
+import * as recipeStepJsonData from '../data/recipe_steps.json';
 
 export default class DataSeeder implements Seeder {
   public async run(factory: Factory, datasource: DataSource): Promise<any> {
@@ -126,6 +128,33 @@ export default class DataSeeder implements Seeder {
 
     if (quantificationArray.length > 0) {
       await datasource.getRepository(Quantification).save(quantificationArray);
+    }
+
+    // RecipeStep
+    const recipeSteps: RecipeStep[] = [];
+    const recipeStepsData: any[] = Array.from(recipeStepJsonData['default']);
+
+    for (let i = 0; i < recipeStepsData.length; i += 1) {
+      const recipeStep = new RecipeStep();
+
+      if (!recipeMapping[recipeStepsData[i].recipe_name]) {
+        continue;
+      }
+
+      recipeStep.content = recipeStepsData[i].content;
+      recipeStep.order = recipeStepsData[i].order;
+      recipeStep.recipe = recipeMapping[recipeStepsData[i].recipe_name];
+
+      recipeSteps.push(recipeStep);
+
+      if (recipeSteps.length === 1000) {
+        await datasource.getRepository(RecipeStep).save(recipeSteps);
+        recipeSteps.length = 0;
+      }
+    }
+
+    if (recipeSteps.length > 0) {
+      await datasource.getRepository(RecipeStep).save(recipeSteps);
     }
   }
 }
