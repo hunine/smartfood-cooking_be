@@ -18,15 +18,8 @@ import {
   Paginate,
   PaginateQuery,
   Paginated,
-  PaginationType,
   paginate,
 } from 'nestjs-paginate';
-
-interface PaginateOptions {
-  page?: number;
-  limit?: number;
-  route?: string;
-}
 
 @Injectable()
 export class RecipeService {
@@ -148,25 +141,57 @@ export class RecipeService {
     });
   }
 
-  async findByIngredientIds(ids: string[]) {
-    if (!(ids instanceof Array)) {
-      ids = [ids];
-    }
-
-    return this.repository.find({
-      relations: [
-        'level',
-        'category',
-        'cuisine',
-        'quantification',
-        'quantification.ingredient',
-      ],
-      where: {
+  async findByIngredientIds(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Recipe>> {
+    return paginate(query, this.repository, {
+      relations: {
+        level: true,
+        category: true,
+        cuisine: true,
+        media: true,
         quantification: {
-          ingredient: {
-            id: In(ids),
-          },
+          ingredient: true,
         },
+      },
+      sortableColumns: ['id', 'name'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['name'],
+      select: [
+        'id',
+        'name',
+        'description',
+        'level.id',
+        'level.name',
+        'category.id',
+        'category.name',
+        'cuisine.id',
+        'cuisine.name',
+        'media.id',
+        'media.url',
+      ],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
+        'level.name': [
+          FilterOperator.EQ,
+          FilterOperator.ILIKE,
+          FilterSuffix.NOT,
+        ],
+        'category.name': [
+          FilterOperator.EQ,
+          FilterOperator.ILIKE,
+          FilterSuffix.NOT,
+        ],
+        'cuisine.name': [
+          FilterOperator.EQ,
+          FilterOperator.ILIKE,
+          FilterSuffix.NOT,
+        ],
+        'quantification.ingredient.id': [
+          FilterOperator.IN,
+          FilterOperator.CONTAINS,
+        ],
       },
     });
   }

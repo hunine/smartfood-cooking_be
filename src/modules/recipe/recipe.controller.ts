@@ -21,8 +21,8 @@ export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
 
   @Get('ingredients')
-  async findByIngredient(@Query('ids') ids: string[]) {
-    return this.recipeService.findByIngredientIds(ids);
+  async findByIngredient(@Paginate() query: PaginateQuery) {
+    return this.recipeService.findByIngredientIds(query);
   }
 
   @Get()
