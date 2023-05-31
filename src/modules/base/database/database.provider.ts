@@ -5,7 +5,7 @@ export enum DatabaseProvider {
   SOURCE = 'DATA_SOURCE',
 }
 
-const synchronize = true;
+const synchronize = false;
 const dataSource = new DataSource({
   type: <any>DATABASE_CONFIG.DATABASE_TYPE || 'postgres',
   host: DATABASE_CONFIG.DATABASE_HOST,
