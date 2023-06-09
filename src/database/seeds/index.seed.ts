@@ -17,9 +17,8 @@ import * as quantificationJsonData from '../data/quantification.json';
 import * as recipeStepJsonData from '../data/recipe_steps.json';
 
 export default class DataSeeder implements Seeder {
-  public async run(factory: Factory, datasource: DataSource): Promise<any> {
-    // Category
-    await datasource
+  private async seedCategories(dataSource: DataSource): Promise<any> {
+    await dataSource
       .createQueryBuilder()
       .insert()
       .into(Category)
@@ -27,12 +26,16 @@ export default class DataSeeder implements Seeder {
       .execute();
 
     const categoryMapping = {};
-    (await datasource.getRepository(Category).find()).forEach((item) => {
+
+    (await dataSource.getRepository(Category).find()).forEach((item) => {
       categoryMapping[item.name] = item;
     });
 
-    // Cuisine
-    await datasource
+    return categoryMapping;
+  }
+
+  private async seedCuisine(dataSource: DataSource): Promise<any> {
+    await dataSource
       .createQueryBuilder()
       .insert()
       .into(Cuisine)
@@ -40,12 +43,16 @@ export default class DataSeeder implements Seeder {
       .execute();
 
     const cuisineMapping = {};
-    (await datasource.getRepository(Cuisine).find()).forEach((item) => {
+
+    (await dataSource.getRepository(Cuisine).find()).forEach((item) => {
       cuisineMapping[item.name] = item;
     });
 
-    // Level
-    await datasource
+    return cuisineMapping;
+  }
+
+  private async seedLevels(dataSource: DataSource): Promise<any> {
+    await dataSource
       .createQueryBuilder()
       .insert()
       .into(Level)
@@ -53,12 +60,16 @@ export default class DataSeeder implements Seeder {
       .execute();
 
     const levelMapping = {};
-    (await datasource.getRepository(Level).find()).forEach((item) => {
+
+    (await dataSource.getRepository(Level).find()).forEach((item) => {
       levelMapping[item.name] = item;
     });
 
-    // Ingredient
-    await datasource
+    return levelMapping;
+  }
+
+  private async seedIngredients(dataSource: DataSource): Promise<any> {
+    await dataSource
       .createQueryBuilder()
       .insert()
       .into(Ingredient)
@@ -66,11 +77,16 @@ export default class DataSeeder implements Seeder {
       .execute();
 
     const ingredientMapping = {};
-    (await datasource.getRepository(Ingredient).find()).forEach((item) => {
+
+    (await dataSource.getRepository(Ingredient).find()).forEach((item) => {
       ingredientMapping[item.name] = item;
     });
 
-    // Recipe
+    return ingredientMapping;
+  }
+
+  private async seedRecipes(mapping, dataSource: DataSource): Promise<any> {
+    const { categoryMapping, cuisineMapping, levelMapping } = mapping;
     const recipes: Recipe[] = [];
     Array.from(recipeJsonData['default']).forEach((item: any) => {
       const recipe = new Recipe();
@@ -84,14 +100,22 @@ export default class DataSeeder implements Seeder {
       recipes.push(recipe);
     });
 
-    await datasource.getRepository(Recipe).save(recipes);
+    await dataSource.getRepository(Recipe).save(recipes);
 
     const recipeMapping = {};
-    (await datasource.getRepository(Recipe).find()).forEach((item) => {
+
+    (await dataSource.getRepository(Recipe).find()).forEach((item) => {
       recipeMapping[item.name] = item;
     });
 
-    // Quantification
+    return recipeMapping;
+  }
+
+  private async seedQuantification(
+    mapping,
+    dataSource: DataSource,
+  ): Promise<any> {
+    const { recipeMapping, ingredientMapping } = mapping;
     const quantificationArray: Quantification[] = [];
     const quantificationDataArray: any[] = Array.from(
       quantificationJsonData['default'],
@@ -119,7 +143,7 @@ export default class DataSeeder implements Seeder {
       quantificationArray.push(quantification);
 
       if (quantificationArray.length === 1000) {
-        await datasource
+        await dataSource
           .getRepository(Quantification)
           .save(quantificationArray);
         quantificationArray.length = 0;
@@ -127,10 +151,12 @@ export default class DataSeeder implements Seeder {
     }
 
     if (quantificationArray.length > 0) {
-      await datasource.getRepository(Quantification).save(quantificationArray);
+      await dataSource.getRepository(Quantification).save(quantificationArray);
     }
+  }
 
-    // RecipeStep
+  private async seedRecipeSteps(mapping, dataSource: DataSource) {
+    const { recipeMapping } = mapping;
     const recipeSteps: RecipeStep[] = [];
     const recipeStepsData: any[] = Array.from(recipeStepJsonData['default']);
 
@@ -148,13 +174,42 @@ export default class DataSeeder implements Seeder {
       recipeSteps.push(recipeStep);
 
       if (recipeSteps.length === 1000) {
-        await datasource.getRepository(RecipeStep).save(recipeSteps);
+        await dataSource.getRepository(RecipeStep).save(recipeSteps);
         recipeSteps.length = 0;
       }
     }
 
     if (recipeSteps.length > 0) {
-      await datasource.getRepository(RecipeStep).save(recipeSteps);
+      await dataSource.getRepository(RecipeStep).save(recipeSteps);
     }
+  }
+
+  public async run(factory: Factory, datasource: DataSource): Promise<any> {
+    // Category
+    const categoryMapping = await this.seedCategories(datasource);
+
+    // Cuisine
+    const cuisineMapping = await this.seedCuisine(datasource);
+
+    // Level
+    const levelMapping = await this.seedLevels(datasource);
+
+    // Ingredient
+    const ingredientMapping = await this.seedIngredients(datasource);
+
+    // Recipe
+    const recipeMapping = await this.seedRecipes(
+      { categoryMapping, cuisineMapping, levelMapping },
+      datasource,
+    );
+
+    // Quantification
+    await this.seedQuantification(
+      { recipeMapping, ingredientMapping },
+      datasource,
+    );
+
+    // RecipeStep
+    await this.seedRecipeSteps({ recipeMapping }, datasource);
   }
 }

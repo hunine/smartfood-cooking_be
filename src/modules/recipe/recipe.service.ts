@@ -123,6 +123,34 @@ export class RecipeService {
 
   async findOneById(id: string): Promise<Recipe> {
     return this.repository.findOneOrFail({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        level: {
+          id: true,
+          name: true,
+        },
+        category: {
+          id: true,
+          name: true,
+        },
+        cuisine: {
+          id: true,
+          name: true,
+        },
+        quantification: {
+          id: true,
+          value: true,
+          unit: true,
+          ingredient: {
+            id: true,
+            name: true,
+          },
+        },
+        media: true,
+        recipeStep: true,
+      },
       relations: [
         'level',
         'media',
