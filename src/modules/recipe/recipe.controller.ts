@@ -3,10 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -40,7 +40,7 @@ export class RecipeController {
     return this.recipeService.create(createRecipeDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,

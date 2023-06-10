@@ -42,6 +42,12 @@ export class IngredientService {
     return this.repository.findOneByOrFail({ id });
   }
 
+  async findMultipleByIds(ids: string[]): Promise<Ingredient[]> {
+    return this.repository.findBy({
+      id: In(ids),
+    });
+  }
+
   async update(id: string, updateIngredientDto: UpdateIngredientDto) {
     try {
       return this.repository.save({

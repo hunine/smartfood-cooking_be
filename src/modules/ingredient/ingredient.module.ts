@@ -8,5 +8,6 @@ import { ingredientProvider } from './ingredient.provider';
   imports: [DatabaseModule],
   controllers: [IngredientController],
   providers: [IngredientService, ...ingredientProvider],
+  exports: [IngredientService],
 })
 export class IngredientModule {}
