@@ -11,6 +11,7 @@ import {
   Paginated,
   paginate,
 } from 'nestjs-paginate';
+import translateHelper from 'src/helpers';
 
 @Injectable()
 export class IngredientService {
@@ -20,7 +21,11 @@ export class IngredientService {
   ) {}
 
   async create(createIngredientDto: CreateIngredientDto): Promise<Ingredient> {
-    const ingredient: Ingredient = this.repository.create(createIngredientDto);
+    const slug = await translateHelper.translate(createIngredientDto.name);
+    const ingredient: Ingredient = this.repository.create({
+      ...createIngredientDto,
+      slug,
+    });
     return this.repository.save(ingredient);
   }
 

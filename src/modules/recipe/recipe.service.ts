@@ -172,7 +172,7 @@ export class RecipeService {
     });
   }
 
-  async findByIngredientIds(
+  async findByIngredient(
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Recipe>> {
     return paginate(query, this.repository, {
@@ -220,6 +220,10 @@ export class RecipeService {
           FilterSuffix.NOT,
         ],
         'quantification.ingredient.id': [
+          FilterOperator.IN,
+          FilterOperator.CONTAINS,
+        ],
+        'quantification.ingredient.slug': [
           FilterOperator.IN,
           FilterOperator.CONTAINS,
         ],

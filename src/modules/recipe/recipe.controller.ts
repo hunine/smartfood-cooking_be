@@ -22,7 +22,7 @@ export class RecipeController {
 
   @Get('ingredients')
   async findByIngredient(@Paginate() query: PaginateQuery) {
-    return this.recipeService.findByIngredientIds(query);
+    return this.recipeService.findByIngredient(query);
   }
 
   @Get()
