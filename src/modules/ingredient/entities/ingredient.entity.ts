@@ -21,6 +21,9 @@ export class Ingredient extends BaseEntity {
   @Column({ type: 'varchar' })
   public name: string;
 
+  @Column({ type: 'varchar' })
+  public slug?: string;
+
   @OneToMany(
     () => Quantification,
     (quantification) => quantification.ingredient,

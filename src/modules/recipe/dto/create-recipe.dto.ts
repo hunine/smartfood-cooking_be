@@ -10,6 +10,11 @@ import {
 export class IngredientDto {
   @ApiProperty()
   @IsString()
+  @IsOptional()
+  public id?: string;
+
+  @ApiProperty()
+  @IsString()
   @IsNotEmpty()
   public ingredientId!: string;
 
