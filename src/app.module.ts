@@ -8,6 +8,7 @@ import { IngredientModule } from './modules/ingredient/ingredient.module';
 import { QuantificationModule } from './modules/quantification/quantification.module';
 import { RecipeStepModule } from './modules/recipe-step/recipe-step.module';
 import { MediaModule } from './modules/media/media.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MediaModule } from './modules/media/media.module';
     RecipeStepModule,
     MediaModule,
     DatabaseModule,
+    CloudinaryModule,
   ],
   controllers: [],
   providers: [],

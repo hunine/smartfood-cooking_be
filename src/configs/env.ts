@@ -20,3 +20,9 @@ export const DATABASE_CONFIG = {
   MIGRATIONS: env.MIGRATIONS || 'dist/migrations/*{.ts,.js}',
   MIGRATIONS_TABLE_NAME: env.MIGRATIONS_TABLE_NAME || 'typeorm_migrations',
 };
+
+export const CLOUDINARY = {
+  CLOUD_NAME: env.CLOUDINARY_CLOUD_NAME || '',
+  API_KEY: env.CLOUDINARY_API_KEY || '',
+  API_SECRET: env.CLOUDINARY_API_SECRET || '',
+};
