@@ -1,26 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
+import { CloudinaryService } from '@app/cloudinary/cloudinary.service';
 
 @Injectable()
 export class MediaService {
-  create(createMediaDto: CreateMediaDto) {
-    return 'This action adds a new media';
+  constructor(private cloudinaryService: CloudinaryService) {}
+
+  async uploadFile(file: any): Promise<any> {
+    return this.cloudinaryService.uploadImage(file);
   }
 
-  findAll() {
-    return `This action returns all media`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} media`;
-  }
-
-  update(id: number, updateMediaDto: UpdateMediaDto) {
-    return `This action updates a #${id} media`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} media`;
+  async uploadManyFiles(files: Array<Express.Multer.File>): Promise<any> {
+    const tasks = files.map((file) => {
+      return this.cloudinaryService.uploadImage(file);
+    });
+    return Promise.all(tasks);
   }
 }
