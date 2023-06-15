@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BASE_URL, PORT } from '@config/env';
+import { HttpExceptionFilter } from './core/filters/http-exception.filter';
 
 async function bootstrap() {
   const app: NestExpressApplication = await NestFactory.create(AppModule);
@@ -11,6 +12,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const configSwagger = new DocumentBuilder()
     .setTitle('Smartfood API docs')

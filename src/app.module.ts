@@ -9,6 +9,8 @@ import { QuantificationModule } from './modules/quantification/quantification.mo
 import { RecipeStepModule } from './modules/recipe-step/recipe-step.module';
 import { MediaModule } from './modules/media/media.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     MediaModule,
     DatabaseModule,
     CloudinaryModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],
