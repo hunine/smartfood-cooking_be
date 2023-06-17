@@ -1,5 +1,6 @@
 import { Media } from '@app/media/entities';
 import { BaseEntity } from '@base/base.entity';
+import { Gender } from 'src/common/enums/gender.enum';
 import {
   Column,
   Entity,
@@ -8,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   public id!: string;
@@ -22,8 +23,18 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   public email: string;
 
-  @Column({ type: 'varchar'})
+  @Column({ type: 'varchar' })
   public password: string;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    nullable: true,
+  })
+  public gender?: Gender;
+
+  @Column({ type: 'varchar', nullable: true })
+  public age?: number;
 
   @Column({ type: 'decimal', nullable: true })
   public height?: number;

@@ -3,7 +3,8 @@ import {
   Controller,
   Get,
   Post,
-  Request,
+  Req,
+  Res,
   UseFilters,
   UseInterceptors,
 } from '@nestjs/common';
@@ -29,28 +30,34 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginData: ValidateAuthDto) {
+  async login(@Body() loginData: ValidateAuthDto, @Res() response) {
     try {
-      const response = await this.authService.validateLogin(loginData);
-      return new ResponseSuccess(RESPONSE_MESSAGES.LOGIN.SUCCESS, response);
+      const data = await this.authService.validateLogin(loginData);
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.LOGIN.SUCCESS,
+        data,
+      ).toOkResponse(response);
     } catch (error) {
-      throw new ResponseError(RESPONSE_MESSAGES.LOGIN.ERROR, error);
+      return new ResponseError(
+        RESPONSE_MESSAGES.LOGIN.ERROR,
+        error,
+      ).sendResponse(response);
     }
   }
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body() createUserDto: CreateUserDto, @Res() response) {
     try {
-      const response = await this.authService.register(createUserDto);
-      return new ResponseSuccess(RESPONSE_MESSAGES.REGISTER.SUCCESS, response);
+      const data = await this.authService.register(createUserDto);
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.REGISTER.SUCCESS,
+        data,
+      ).toCreatedResponse(response);
     } catch (error) {
-      throw new ResponseError(RESPONSE_MESSAGES.REGISTER.ERROR, error);
+      return new ResponseError(
+        RESPONSE_MESSAGES.REGISTER.ERROR,
+        error,
+      ).sendResponse(response);
     }
-  }
-
-  @Get('profile')
-  @AuthenticateGuard()
-  async getProfile(@Request() req) {
-    return req.user;
   }
 }

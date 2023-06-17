@@ -1,7 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { Gender } from 'src/common/enums/gender.enum';
 
 export class UpdateUserDto {
+  @ApiProperty()
+  @IsPositive()
+  @IsNotEmpty()
+  public age: number;
+
+  @ApiProperty()
+  @IsEnum(Gender)
+  @IsNotEmpty()
+  public gender: Gender;
+
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()

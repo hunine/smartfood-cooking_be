@@ -47,10 +47,13 @@ export class UserService {
   }
 
   async update(email: string, updateUserDto: UpdateUserDto): Promise<User> {
-    return this.repository.save({
-      email,
+    const user = await this.repository.findOneByOrFail({ email });
+    const newUser = {
+      ...user,
       ...updateUserDto,
-    });
+    };
+
+    return this.repository.save(newUser);
   }
 
   async resetPassword(email: string, resetPasswordDto: ResetPasswordDto) {
