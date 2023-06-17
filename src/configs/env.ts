@@ -7,6 +7,10 @@ const env = process.env;
 export const NODE_ENV = env.NODE_ENV || 'development';
 export const PORT = parseInt(env.PORT, 10) || 3000;
 export const BASE_URL = env.BASE_URL || 'http://localhost:3000';
+export const BCRYPT_SALT_ROUND =
+  parseInt(env.BCRYPT_SALT_ROUND as string) || 10;
+export const JWT_SECRET = env.JWT_SECRET || '';
+export const JWT_EXPIRES_IN = env.JWT_EXPIRES_IN || '1d';
 export const DATABASE_CONFIG = {
   DATABASE_TYPE: env.DATABASE_TYPE || 'postgres',
   DATABASE_HOST: env.DATABASE_HOST || 'localhost',
