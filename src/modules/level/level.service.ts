@@ -32,7 +32,7 @@ export class LevelService {
       searchableColumns: ['name'],
       select: ['id', 'name'],
       filterableColumns: {
-        name: [FilterOperator.EQ, FilterSuffix.NOT],
+        name: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
       },
     });
   }
