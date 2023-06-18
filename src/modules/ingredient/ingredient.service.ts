@@ -38,7 +38,7 @@ export class IngredientService {
       searchableColumns: ['name'],
       select: ['id', 'name', 'media.id', 'media.url'],
       filterableColumns: {
-        name: [FilterOperator.EQ, FilterSuffix.NOT],
+        name: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
       },
     });
   }

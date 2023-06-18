@@ -86,7 +86,13 @@ export class RecipeService {
   async findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Recipe>> {
     return paginate(query, this.repository, {
       relations: ['level', 'category', 'cuisine', 'media'],
-      sortableColumns: ['id', 'name'],
+      sortableColumns: [
+        'id',
+        'name',
+        'level.name',
+        'category.name',
+        'cuisine.name',
+      ],
       nullSort: 'last',
       defaultSortBy: [['id', 'DESC']],
       searchableColumns: ['name'],
