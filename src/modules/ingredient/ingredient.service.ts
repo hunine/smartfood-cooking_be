@@ -36,7 +36,7 @@ export class IngredientService {
       nullSort: 'last',
       defaultSortBy: [['id', 'DESC']],
       searchableColumns: ['name'],
-      select: ['id', 'name', 'media.id', 'media.url'],
+      select: ['id', 'name', 'slug', 'media.id', 'media.url'],
       filterableColumns: {
         name: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
       },
