@@ -19,20 +19,20 @@ export class Media extends BaseEntity {
   @Column({ type: 'varchar' })
   public url: string;
 
-  @Column({ type: 'int' })
-  public width: number;
+  @Column({ type: 'int', nullable: true })
+  public width?: number;
 
-  @Column({ type: 'int' })
-  public height: number;
+  @Column({ type: 'int', nullable: true })
+  public height?: number;
 
   @ManyToMany(() => Ingredient, (ingredient) => ingredient.media)
-  ingredient: Ingredient;
+  ingredient: Ingredient[];
 
   @ManyToMany(() => Recipe, (recipe) => recipe.media)
-  recipe: Recipe;
+  recipe: Recipe[];
 
   @ManyToMany(() => RecipeStep, (recipeStep) => recipeStep.media)
-  recipeStep: RecipeStep;
+  recipeStep: RecipeStep[];
 
   @OneToOne(() => User, (user) => user.avatar)
   user: User;

@@ -13,7 +13,6 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -47,33 +46,6 @@ export class Recipe extends BaseEntity {
   recipeStep: RecipeStep[];
 
   @ManyToMany(() => Media, (media) => media.recipe)
-  @JoinTable({
-    name: 'recipes_media',
-    joinColumn: {
-      name: 'recipe_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'media_id',
-      referencedColumnName: 'id',
-    },
-  })
-  media: Media[];
-}
-
-@Entity('recipes_media')
-export class RecipeMedia {
-  @PrimaryColumn({ name: 'recipe_id' })
-  recipeId: number;
-
-  @PrimaryColumn({ name: 'media_id' })
-  mediaId: number;
-
-  @ManyToOne(() => Recipe, (recipe) => recipe.media)
-  @JoinColumn([{ name: 'recipe_id', referencedColumnName: 'id' }])
-  recipes: Recipe[];
-
-  @ManyToOne(() => Media, (media) => media.ingredient)
-  @JoinColumn([{ name: 'media_id', referencedColumnName: 'id' }])
+  @JoinTable({ name: 'recipes_media' })
   media: Media[];
 }

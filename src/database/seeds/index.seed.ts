@@ -15,6 +15,7 @@ import * as ingredientJsonData from '../data/ingredients.json';
 import * as recipeJsonData from '../data/recipes.json';
 import * as quantificationJsonData from '../data/quantification.json';
 import * as recipeStepJsonData from '../data/recipe_steps.json';
+import { Media } from '@app/media/entities';
 
 export default class DataSeeder implements Seeder {
   private async seedCategories(dataSource: DataSource): Promise<any> {
@@ -88,17 +89,23 @@ export default class DataSeeder implements Seeder {
   private async seedRecipes(mapping, dataSource: DataSource): Promise<any> {
     const { categoryMapping, cuisineMapping, levelMapping } = mapping;
     const recipes: Recipe[] = [];
-    Array.from(recipeJsonData['default']).forEach((item: any) => {
+    const recipesData: any[] = Array.from(recipeJsonData['default']);
+
+    for (let i = 0; i < recipesData.length; i += 1) {
       const recipe = new Recipe();
+      const media = new Media();
 
-      recipe.name = item.name;
-      recipe.description = item.description;
-      recipe.category = categoryMapping[item.category];
-      recipe.cuisine = cuisineMapping[item.cuisine];
-      recipe.level = levelMapping[item.level];
+      media.url = recipesData[i].media;
+      recipe.name = recipesData[i].name;
+      recipe.description = recipesData[i].description;
+      recipe.category = categoryMapping[recipesData[i].category];
+      recipe.cuisine = cuisineMapping[recipesData[i].cuisine];
+      recipe.level = levelMapping[recipesData[i].level];
+      recipe.media = [media];
 
+      await dataSource.getRepository(Media).save(media);
       recipes.push(recipe);
-    });
+    }
 
     await dataSource.getRepository(Recipe).save(recipes);
 
@@ -170,6 +177,20 @@ export default class DataSeeder implements Seeder {
       recipeStep.content = recipeStepsData[i].content;
       recipeStep.order = recipeStepsData[i].order;
       recipeStep.recipe = recipeMapping[recipeStepsData[i].recipe_name];
+      recipeStep.media = [];
+
+      if (recipeStepsData[i] && !recipeStepsData[i].media) {
+        recipeStepsData[i].media = [];
+      }
+
+      for (let j = 0; j < recipeStepsData[i].media.length; j += 1) {
+        const media = new Media();
+
+        media.url = recipeStepsData[i].media[j];
+
+        await dataSource.getRepository(Media).save(media);
+        recipeStep.media.push(media);
+      }
 
       recipeSteps.push(recipeStep);
 
