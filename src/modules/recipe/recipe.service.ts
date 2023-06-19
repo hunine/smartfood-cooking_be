@@ -157,8 +157,19 @@ export class RecipeService {
             name: true,
           },
         },
-        media: true,
-        recipeStep: true,
+        media: {
+          id: true,
+          url: true,
+        },
+        recipeStep: {
+          id: true,
+          content: true,
+          order: true,
+          media: {
+            id: true,
+            url: true,
+          },
+        },
       },
       relations: [
         'level',
@@ -168,6 +179,7 @@ export class RecipeService {
         'quantification',
         'quantification.ingredient',
         'recipeStep',
+        'recipeStep.media',
       ],
       where: { id },
       order: {
