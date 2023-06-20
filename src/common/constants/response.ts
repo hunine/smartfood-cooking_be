@@ -14,4 +14,8 @@ export const RESPONSE_MESSAGES = Object.freeze({
     UPDATE_PROFILE_ERROR: 'Update profile error',
     EMAIL_EXIST: 'Email already exist',
   },
+  RECIPE: {
+    READY_TO_COOK: 'Ready to cook',
+    CAN_NOT_COOK: 'Can not cook this recipe',
+  },
 });
