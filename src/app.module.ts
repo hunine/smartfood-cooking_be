@@ -11,6 +11,7 @@ import { MediaModule } from './modules/media/media.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { CookingHistoryModule } from './modules/cooking-history/cooking-history.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UserModule } from './modules/user/user.module';
     CloudinaryModule,
     AuthModule,
     UserModule,
+    CookingHistoryModule,
   ],
   controllers: [],
   providers: [],

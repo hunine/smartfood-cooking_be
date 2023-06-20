@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
@@ -10,10 +10,12 @@ import { Category } from 'src/modules/category/entities';
 import { CategoryService } from 'src/modules/category/category.service';
 import { CuisineService } from 'src/modules/cuisine/cuisine.service';
 import { IngredientService } from '@app/ingredient/ingredient.service';
+import { CookingHistoryService } from '@app/cooking-history/cooking-history.service';
 import { Cuisine } from 'src/modules/cuisine/entities';
 import { RecipeProvider } from './recipe.provider';
 import { Quantification } from '@app/quantification/entities';
 import { RecipeStep } from '@app/recipe-step/entities';
+
 import {
   FilterOperator,
   FilterSuffix,
@@ -32,6 +34,7 @@ export class RecipeService {
     private readonly categoryService: CategoryService,
     private readonly cuisineService: CuisineService,
     private readonly ingredientService: IngredientService,
+    private readonly cookingHistoryService: CookingHistoryService,
   ) {}
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
@@ -188,6 +191,23 @@ export class RecipeService {
         },
       },
     });
+  }
+
+  async getRecipeToCook(id: string, userEmail = ''): Promise<Recipe> {
+    try {
+      const recipe = await this.findOneById(id);
+
+      if (recipe && userEmail) {
+        await this.cookingHistoryService.create({
+          userEmail,
+          recipeId: recipe.id,
+        });
+      }
+
+      return recipe;
+    } catch (error) {
+      throw new NotFoundException('Recipe not found');
+    }
   }
 
   async findByIngredient(

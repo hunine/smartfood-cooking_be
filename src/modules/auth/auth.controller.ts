@@ -11,7 +11,6 @@ import {
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { ValidateAuthDto } from './dto/validate-auth.dto';
-import { AuthenticateGuard } from './decorators/auth.decorator';
 import { CreateUserDto } from '@app/user/dto/create-user.dto';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
 import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';

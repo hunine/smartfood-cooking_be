@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Patch,
   Req,
   Res,
@@ -40,6 +39,7 @@ export class UserController {
       return new ResponseSuccess(
         RESPONSE_MESSAGES.USER.GET_PROFILE_SUCCESS,
         data,
+        true,
       ).toOkResponse(response);
     } catch (error) {
       return new ResponseError(
