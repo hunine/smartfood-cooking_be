@@ -53,6 +53,7 @@ export class RecipeController {
 
   @Post()
   async create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
+    console.log('hihi');
     return this.recipeService.create(createRecipeDto);
   }
 
