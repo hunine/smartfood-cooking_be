@@ -10,6 +10,7 @@ import {
   Req,
   UseFilters,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -21,6 +22,11 @@ import { AuthenticateGuard } from '@app/auth/decorators/auth.decorator';
 import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';
 import { TransformInterceptor } from 'src/core/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from 'src/core/filters/http-exception.filter';
+import {
+  ResponseError,
+  ResponseSuccess,
+} from 'src/core/responses/response-exception';
+import { RESPONSE_MESSAGES } from 'src/common/constants';
 
 @ApiTags('recipes')
 @Controller('recipes')
@@ -44,11 +50,28 @@ export class RecipeController {
     return this.recipeService.findOneById(id);
   }
 
-  @Get('cook/:id')
+  @Post('cook/:id')
   @AuthenticateGuard()
-  async getRecipeToCook(@Param('id') id: string, @Req() request) {
-    const userEmail = request.user.email || '';
-    return this.recipeService.getRecipeToCook(id, userEmail);
+  async getRecipeToCook(
+    @Param('id') id: string,
+    @Req() request,
+    @Res() response,
+  ) {
+    try {
+      const userEmail = request.user.email || '';
+      const data = await this.recipeService.getRecipeToCook(id, userEmail);
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.RECIPE.READY_TO_COOK,
+        data,
+        true,
+      ).toNoContentResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.RECIPE.CAN_NOT_COOK,
+        error,
+      ).sendResponse(response);
+    }
   }
 
   @Post()

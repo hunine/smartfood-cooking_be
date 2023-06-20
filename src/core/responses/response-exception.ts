@@ -40,7 +40,7 @@ export class ResponseSuccess implements IResponse {
   data: any[];
   status: number;
 
-  constructor(infoMessage: string, data?: any, notLog?: boolean) {
+  constructor(infoMessage: string, data?: any, notLog = false) {
     this.success = true;
     this.message = infoMessage;
 
