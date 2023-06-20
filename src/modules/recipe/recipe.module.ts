@@ -7,6 +7,7 @@ import { CuisineModule } from 'src/modules/cuisine/cuisine.module';
 import { DatabaseModule } from '@app/base/database/database.module';
 import { recipeProvider } from './recipe.provider';
 import { IngredientModule } from '@app/ingredient/ingredient.module';
+import { CookingHistoryModule } from '@app/cooking-history/cooking-history.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { IngredientModule } from '@app/ingredient/ingredient.module';
     CategoryModule,
     CuisineModule,
     IngredientModule,
+    CookingHistoryModule,
   ],
   controllers: [RecipeController],
   providers: [RecipeService, ...recipeProvider],

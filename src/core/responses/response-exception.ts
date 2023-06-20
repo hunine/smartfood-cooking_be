@@ -64,7 +64,7 @@ export class ResponseSuccess implements IResponse {
 
   public toOkResponse(response: Response) {
     this.status = HttpStatus.OK;
-    return this.sendResponse(response);
+    return this.sendResponse(response, this.data);
   }
 
   public toNoContentResponse(response: Response) {
@@ -77,7 +77,7 @@ export class ResponseSuccess implements IResponse {
     return this.sendResponse(response);
   }
 
-  public sendResponse(response: Response) {
+  public sendResponse(response: Response, data?: any) {
     return response.status(this.status).json({
       success: this.success,
       status: this.status,
