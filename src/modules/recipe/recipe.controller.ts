@@ -40,6 +40,26 @@ export class RecipeController {
     return this.recipeService.findByIngredient(query);
   }
 
+  @Get('recommend')
+  @AuthenticateGuard()
+  async findRecommend(@Req() request, @Res() response) {
+    try {
+      const userEmail = request.user.email || '';
+      const data = await this.recipeService.findRecommendedRecipes(userEmail);
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.RECIPE.RECOMMEND_SUCCESS,
+        data,
+        true,
+      ).toOkResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.RECIPE.RECOMMEND_FAILED,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
   @Get()
   async findAll(@Paginate() query: PaginateQuery) {
     return this.recipeService.findAll(query);

@@ -11,7 +11,7 @@ import {
   Paginated,
   paginate,
 } from 'nestjs-paginate';
-import translateHelper from 'src/helpers';
+import { translateHelper } from 'src/helpers';
 
 @Injectable()
 export class IngredientService {

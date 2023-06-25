@@ -30,3 +30,8 @@ export const CLOUDINARY = {
   API_KEY: env.CLOUDINARY_API_KEY || '',
   API_SECRET: env.CLOUDINARY_API_SECRET || '',
 };
+
+export const RECOMMENDER_SERVICE = {
+  URL: env.RECOMMENDER_SERVICE_URL || '',
+  API_KEY: env.RECOMMENDER_SERVICE_API_KEY || '',
+};

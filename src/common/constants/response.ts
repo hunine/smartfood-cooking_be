@@ -17,5 +17,7 @@ export const RESPONSE_MESSAGES = Object.freeze({
   RECIPE: {
     READY_TO_COOK: 'Ready to cook',
     CAN_NOT_COOK: 'Can not cook this recipe',
+    RECOMMEND_FAILED: 'Recommend failed',
+    RECOMMEND_SUCCESS: 'Recommend successful',
   },
 });

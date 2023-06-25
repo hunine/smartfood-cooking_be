@@ -26,4 +26,19 @@ export class CookingHistoryService {
       userId: isExistUser.id,
     });
   }
+
+  async findHistoryByUser(userEmail: string, numOfRecipes = 10) {
+    const isExistUser = await this.userService.findOneByEmail(userEmail);
+    if (!isExistUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const cookingHistory = await this.repository.find({
+      where: { userId: isExistUser.id },
+      order: { createdAt: 'DESC' },
+      take: numOfRecipes,
+    });
+
+    return cookingHistory;
+  }
 }
