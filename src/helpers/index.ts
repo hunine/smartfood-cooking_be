@@ -1,3 +1,4 @@
 import TranslateHelper from './translate.helper';
+export { HttpHelper } from './http.helper';
 
-export default new TranslateHelper('vi', 'en');
+export const translateHelper = new TranslateHelper('vi', 'en');

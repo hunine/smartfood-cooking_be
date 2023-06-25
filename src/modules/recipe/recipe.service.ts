@@ -3,7 +3,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
-import { In, Repository } from 'typeorm';
+import { FindManyOptions, In, Repository } from 'typeorm';
 import { LevelService } from 'src/modules/level/level.service';
 import { Level } from 'src/modules/level/entities';
 import { Category } from 'src/modules/category/entities';
@@ -24,6 +24,8 @@ import {
   Paginated,
   paginate,
 } from 'nestjs-paginate';
+import { HttpHelper } from 'src/helpers';
+import { RECOMMENDER_SERVICE } from '@config/env';
 
 @Injectable()
 export class RecipeService {
@@ -378,6 +380,57 @@ export class RecipeService {
       });
 
       return this.repository.softRemove(recipes);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findRecommendedRecipes(userEmail) {
+    try {
+      const cookingHistory = await this.cookingHistoryService.findHistoryByUser(
+        userEmail,
+      );
+      const recipeIds = cookingHistory.map((item) => item.recipeId);
+      const options: FindManyOptions<Recipe> = {
+        select: ['name'],
+      };
+
+      if (recipeIds.length) {
+        options.where = {
+          id: In(recipeIds),
+        };
+      } else {
+        options.take = 5;
+        options.skip = Math.floor(
+          Math.random() * (await this.repository.count()),
+        );
+      }
+
+      const recipes = await this.repository.find(options);
+
+      const data = {
+        user_recipes: recipes.map((recipe) => recipe.name),
+      };
+      const url = `${RECOMMENDER_SERVICE.URL}/recommend`;
+      const recommendResult: any = await HttpHelper.post(url, data, null, {
+        headers: {
+          authorization: RECOMMENDER_SERVICE.API_KEY,
+        },
+      });
+
+      const recommendRecipes = recommendResult.data.map((recipeName) => {
+        return this.repository.findOne({
+          where: { name: recipeName },
+          relations: {
+            level: true,
+            category: true,
+            cuisine: true,
+            media: true,
+          },
+        });
+      });
+
+      return Promise.all(recommendRecipes);
     } catch (error) {
       throw error;
     }
