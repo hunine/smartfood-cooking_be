@@ -70,12 +70,23 @@ export default class DataSeeder implements Seeder {
   }
 
   private async seedIngredients(dataSource: DataSource): Promise<any> {
-    await dataSource
-      .createQueryBuilder()
-      .insert()
-      .into(Ingredient)
-      .values(Array.from(ingredientJsonData['default']))
-      .execute();
+    const ingredients: Ingredient[] = [];
+    const ingredientsData: any[] = Array.from(ingredientJsonData['default']);
+
+    for (let i = 0; i < ingredientsData.length; i += 1) {
+      const ingredient = new Ingredient();
+      const media = new Media();
+
+      media.url = ingredientsData[i].media;
+      ingredient.name = ingredientsData[i].name;
+      ingredient.slug = ingredientsData[i].slug;
+      ingredient.media = [media];
+
+      await dataSource.getRepository(Media).save(media);
+      ingredients.push(ingredient);
+    }
+
+    await dataSource.getRepository(Ingredient).save(ingredients);
 
     const ingredientMapping = {};
 
