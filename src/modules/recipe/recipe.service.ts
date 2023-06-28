@@ -95,6 +95,7 @@ export class RecipeService {
       sortableColumns: [
         'id',
         'name',
+        'rating',
         'level.name',
         'category.name',
         'cuisine.name',
@@ -105,6 +106,7 @@ export class RecipeService {
       select: [
         'id',
         'name',
+        'rating',
         'description',
         'level.id',
         'level.name',
@@ -141,6 +143,7 @@ export class RecipeService {
       select: {
         id: true,
         name: true,
+        rating: true,
         description: true,
         level: {
           id: true,
@@ -233,6 +236,7 @@ export class RecipeService {
       select: [
         'id',
         'name',
+        'rating',
         'description',
         'level.id',
         'level.name',

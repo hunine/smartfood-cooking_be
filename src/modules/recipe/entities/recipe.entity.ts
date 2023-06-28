@@ -4,6 +4,7 @@ import { Level } from 'src/modules/level/entities';
 import { Media } from 'src/modules/media/entities';
 import { Quantification } from 'src/modules/quantification/entities';
 import { RecipeStep } from 'src/modules/recipe-step/entities';
+import { RecipeRating } from '@app/recipe-rating/entities';
 import { BaseEntity } from '@base/base.entity';
 import {
   Column,
@@ -27,6 +28,9 @@ export class Recipe extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   public description: string;
 
+  @Column({ type: 'decimal', default: 0 })
+  public rating: number;
+
   @ManyToOne(() => Level, (level) => level.recipes)
   @JoinColumn({ name: 'level_id' })
   level: Level;
@@ -44,6 +48,9 @@ export class Recipe extends BaseEntity {
 
   @OneToMany(() => RecipeStep, (recipeStep) => recipeStep.recipe)
   recipeStep: RecipeStep[];
+
+  @OneToMany(() => RecipeRating, (recipeRating) => recipeRating.recipe)
+  recipeRating: RecipeRating[];
 
   @ManyToMany(() => Media, (media) => media.recipe)
   @JoinTable({ name: 'recipes_media' })

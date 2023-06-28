@@ -1,10 +1,12 @@
 import { Media } from '@app/media/entities';
+import { RecipeRating } from '@app/recipe-rating/entities';
 import { BaseEntity } from '@base/base.entity';
 import { Gender } from 'src/common/enums/gender.enum';
 import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -45,4 +47,7 @@ export class User extends BaseEntity {
   @OneToOne(() => Media, (media) => media.user)
   @JoinColumn({ name: 'media_id' })
   avatar: Media;
+
+  @OneToMany(() => RecipeRating, (recipeRating) => recipeRating.user)
+  recipeRating: RecipeRating[];
 }

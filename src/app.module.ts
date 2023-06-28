@@ -12,6 +12,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { CookingHistoryModule } from './modules/cooking-history/cooking-history.module';
+import { RecipeRatingModule } from './modules/recipe-rating/recipe-rating.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CookingHistoryModule } from './modules/cooking-history/cooking-history.
     IngredientModule,
     RecipeModule,
     RecipeStepModule,
+    RecipeRatingModule,
     MediaModule,
     DatabaseModule,
     CloudinaryModule,
