@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CookingHistory } from './entities';
 import { CreateCookingHistoryDto } from './dto/create-cooking-history.dto';
 import { UserService } from '@app/user/user.service';
+import { DateTimeHelper } from 'src/helpers/datetime.helper';
 
 @Injectable()
 export class CookingHistoryService {
@@ -24,6 +25,7 @@ export class CookingHistoryService {
     await this.repository.save({
       recipeId,
       userId: isExistUser.id,
+      date: DateTimeHelper.getTodayString(),
     });
   }
 
@@ -40,5 +42,45 @@ export class CookingHistoryService {
     });
 
     return cookingHistory;
+  }
+
+  async getRecipesStatistics(from: string, to: string) {
+    const recipesStatistics = await this.repository
+      .createQueryBuilder('cookingHistory')
+      .select('cookingHistory.date', 'date')
+      .addSelect('COUNT(cookingHistory.date)', 'count')
+      .where('cookingHistory.createdAt BETWEEN :from AND :to', { from, to })
+      .groupBy('cookingHistory.date')
+      .orderBy('date', 'DESC')
+      .getRawMany();
+    const dateMapping = {};
+
+    recipesStatistics.forEach((item) => {
+      dateMapping[item.date] = item.count;
+    });
+
+    for (
+      let d = new Date(from);
+      d <= new Date(to);
+      d.setDate(d.getDate() + 1)
+    ) {
+      if (!dateMapping[d.toISOString().slice(0, 10)]) {
+        recipesStatistics.push({
+          date: d.toISOString().slice(0, 10),
+          count: 0,
+        });
+      }
+    }
+
+    return recipesStatistics
+      .map((item) => {
+        return {
+          date: item.date,
+          count: Number.parseInt(item.count),
+        };
+      })
+      .sort((a, b) => {
+        return a.date > b.date ? 1 : -1;
+      });
   }
 }
