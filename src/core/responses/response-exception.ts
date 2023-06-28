@@ -79,10 +79,10 @@ export class ResponseSuccess implements IResponse {
 
   public sendResponse(response: Response, data?: any) {
     return response.status(this.status).json({
+      data,
       success: this.success,
       status: this.status,
       message: this.message,
-      data: this.data,
     });
   }
 }

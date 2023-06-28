@@ -28,4 +28,8 @@ export const RESPONSE_MESSAGES = Object.freeze({
     GET_INGREDIENT_SUCCESS: 'Get ingredient successful',
     GET_INGREDIENT_ERROR: 'Get ingredient error',
   },
+  RECIPE_RATING: {
+    RATING_SUCCESS: 'Rating successful',
+    RATING_ERROR: 'Rating error',
+  },
 });
