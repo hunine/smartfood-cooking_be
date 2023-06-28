@@ -39,6 +39,8 @@
     "cloudinary": "^1.37.1",
     "dotenv": "^16.0.3",
     "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
     "nestjs-paginate": "^8.1.4",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",

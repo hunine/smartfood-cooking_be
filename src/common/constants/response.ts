@@ -32,4 +32,10 @@ export const RESPONSE_MESSAGES = Object.freeze({
     RATING_SUCCESS: 'Rating successful',
     RATING_ERROR: 'Rating error',
   },
+  COOKING_HISTORY: {
+    GET_COOKING_HISTORY_SUCCESS: 'Get cooking history successful',
+    GET_COOKING_HISTORY_ERROR: 'Get cooking history error',
+    GET_STATISTICS_SUCCESS: 'Get statistics successful',
+    GET_STATISTICS_ERROR: 'Get statistics error',
+  },
 });
