@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities';
-import { In, Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import { IngredientProvider } from './ingredient.provider';
 import {
   FilterOperator,
@@ -12,6 +12,7 @@ import {
   paginate,
 } from 'nestjs-paginate';
 import { translateHelper } from 'src/helpers';
+import { DateTimeHelper } from 'src/helpers/datetime.helper';
 
 @Injectable()
 export class IngredientService {
@@ -86,6 +87,24 @@ export class IngredientService {
       });
 
       return this.repository.softRemove(ingredients);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async countAll() {
+    try {
+      const totalIngredients = await this.repository.count();
+      const newIngredientsLastWeek = await this.repository.count({
+        where: {
+          createdAt: MoreThanOrEqual(await DateTimeHelper.getLastWeeksDate()),
+        },
+      });
+
+      return {
+        totalIngredients,
+        newIngredientsLastWeek,
+      };
     } catch (error) {
       throw error;
     }

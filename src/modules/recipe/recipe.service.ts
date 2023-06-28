@@ -3,7 +3,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
-import { FindManyOptions, In, Repository } from 'typeorm';
+import { FindManyOptions, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { LevelService } from 'src/modules/level/level.service';
 import { Level } from 'src/modules/level/entities';
 import { Category } from 'src/modules/category/entities';
@@ -26,6 +26,7 @@ import {
 } from 'nestjs-paginate';
 import { HttpHelper } from 'src/helpers';
 import { RECOMMENDER_SERVICE } from '@config/env';
+import { DateTimeHelper } from 'src/helpers/datetime.helper';
 
 @Injectable()
 export class RecipeService {
@@ -431,6 +432,24 @@ export class RecipeService {
       });
 
       return Promise.all(recommendRecipes);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async countAll() {
+    try {
+      const totalRecipes = await this.repository.count();
+      const newRecipesLastWeek = await this.repository.count({
+        where: {
+          createdAt: MoreThanOrEqual(await DateTimeHelper.getLastWeeksDate()),
+        },
+      });
+
+      return {
+        totalRecipes,
+        newRecipesLastWeek,
+      };
     } catch (error) {
       throw error;
     }

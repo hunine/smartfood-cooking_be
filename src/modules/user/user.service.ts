@@ -1,11 +1,20 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { UserProvider } from './user.provider';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { User } from './entities';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
+import {
+  FilterOperator,
+  FilterSuffix,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+  paginate,
+} from 'nestjs-paginate';
+import { DateTimeHelper } from 'src/helpers/datetime.helper';
 
 @Injectable()
 export class UserService {
@@ -66,5 +75,38 @@ export class UserService {
   async remove(email: string) {
     const user: User = await this.findOneByEmail(email);
     return this.repository.softRemove(user);
+  }
+
+  async findAll(@Paginate() query: PaginateQuery): Promise<Paginated<User>> {
+    return paginate(query, this.repository, {
+      sortableColumns: ['id', 'firstName', 'lastName', 'email'],
+      nullSort: 'last',
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['firstName', 'lastName', 'email'],
+      select: ['id', 'firstName', 'lastName', 'email', 'deletedAt'],
+      filterableColumns: {
+        firstName: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
+        lastName: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
+        email: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
+      },
+    });
+  }
+
+  async countAll() {
+    try {
+      const totalUsers = await this.repository.count();
+      const newUsersLastWeek = await this.repository.count({
+        where: {
+          createdAt: MoreThanOrEqual(await DateTimeHelper.getLastWeeksDate()),
+        },
+      });
+
+      return {
+        totalUsers,
+        newUsersLastWeek,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }

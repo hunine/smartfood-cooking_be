@@ -60,6 +60,23 @@ export class RecipeController {
     }
   }
 
+  @Get('count')
+  async countAll(@Res() response) {
+    try {
+      const data = await this.recipeService.countAll();
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.RECIPE.GET_RECIPE_SUCCESS,
+        data,
+        true,
+      ).toOkResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.RECIPE.GET_RECIPE_ERROR,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
   @Get()
   async findAll(@Paginate() query: PaginateQuery) {
     return this.recipeService.findAll(query);

@@ -20,6 +20,7 @@ import { AuthenticateGuard } from '@app/auth/decorators/auth.decorator';
 import { HttpExceptionFilter } from 'src/core/filters/http-exception.filter';
 import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';
 import { TransformInterceptor } from 'src/core/interceptors/transform.interceptor';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @ApiTags('users')
 @Controller('users')
@@ -68,5 +69,27 @@ export class UserController {
         error,
       ).sendResponse(response);
     }
+  }
+
+  @Get('count')
+  async countAll(@Res() response) {
+    try {
+      const data = await this.userService.countAll();
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.USER.GET_USER_SUCCESS,
+        data,
+        true,
+      ).toOkResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.USER.GET_USER_ERROR,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
+  @Get()
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.userService.findAll(query);
   }
 }
