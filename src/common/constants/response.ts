@@ -43,7 +43,7 @@ export const RESPONSE_MESSAGES = Object.freeze({
     GET_DIARY_ERROR: 'Get diary error',
     CREATE_DIARY_SUCCESS: 'Create diary successful',
     CREATE_DIARY_ERROR: 'Create diary error',
-    UPDATE_DIARY_SUCCESS: 'Update diary successful',
-    UPDATE_DIARY_ERROR: 'Update diary error',
+    DELETE_DIARY_SUCCESS: 'Delete diary successful',
+    DELETE_DIARY_ERROR: 'Delete diary error',
   },
 });
