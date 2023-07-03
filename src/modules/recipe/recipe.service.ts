@@ -138,6 +138,14 @@ export class RecipeService {
     });
   }
 
+  async findManyByIds(ids: string[]): Promise<Recipe[]> {
+    return this.repository.find({
+      where: {
+        id: In(ids),
+      },
+    });
+  }
+
   async findOneById(id: string): Promise<Recipe> {
     return this.repository.findOneOrFail({
       select: {

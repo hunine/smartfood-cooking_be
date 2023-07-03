@@ -38,4 +38,12 @@ export const RESPONSE_MESSAGES = Object.freeze({
     GET_STATISTICS_SUCCESS: 'Get statistics successful',
     GET_STATISTICS_ERROR: 'Get statistics error',
   },
+  DIARY: {
+    GET_DIARY_SUCCESS: 'Get diary successful',
+    GET_DIARY_ERROR: 'Get diary error',
+    CREATE_DIARY_SUCCESS: 'Create diary successful',
+    CREATE_DIARY_ERROR: 'Create diary error',
+    UPDATE_DIARY_SUCCESS: 'Update diary successful',
+    UPDATE_DIARY_ERROR: 'Update diary error',
+  },
 });

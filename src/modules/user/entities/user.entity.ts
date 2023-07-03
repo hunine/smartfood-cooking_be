@@ -10,6 +10,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Diary } from '@app/diary/entities';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -50,4 +51,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => RecipeRating, (recipeRating) => recipeRating.user)
   recipeRating: RecipeRating[];
+
+  @OneToMany(() => Diary, (diary) => diary.user)
+  diaries: Diary[];
 }

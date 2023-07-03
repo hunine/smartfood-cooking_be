@@ -20,5 +20,6 @@ import { CookingHistoryModule } from '@app/cooking-history/cooking-history.modul
   ],
   controllers: [RecipeController],
   providers: [RecipeService, ...recipeProvider],
+  exports: [RecipeService],
 })
 export class RecipeModule {}
