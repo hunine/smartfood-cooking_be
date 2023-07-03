@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Diary } from '@app/diary/entities';
 import { CreateDiaryDto } from '@app/diary/dto/create-diary.dto';
 import { RecipeService } from '@app/recipe/recipe.service';
-import { UpdateDiaryDto } from '@app/diary/dto/update-diary.dto';
+import { IGetDiaryInterface } from './interfaces/get-diary.interface';
 
 @Injectable()
 export class DiaryService {
@@ -16,7 +16,14 @@ export class DiaryService {
 
   async getDiary(userId: string, date: string) {
     try {
-      return this.repository.find({
+      const returnData: IGetDiaryInterface = {
+        date,
+        totalCalories: 0,
+        breakfast: [],
+        lunch: [],
+        dinner: [],
+      };
+      const diary = await this.repository.find({
         where: {
           user: {
             id: userId,
@@ -25,6 +32,19 @@ export class DiaryService {
         },
         relations: ['recipe'],
       });
+
+      diary.forEach((item) => {
+        if (!returnData[item.typeOfMeal]) {
+          returnData[item.typeOfMeal] = [];
+        }
+
+        returnData[item.typeOfMeal].push({
+          id: item.id,
+          recipe: item.recipe,
+        });
+      });
+
+      return returnData;
     } catch (error) {
       throw error;
     }
@@ -55,35 +75,13 @@ export class DiaryService {
     }
   }
 
-  async updateDiary(
-    userId: string,
-    date: string,
-    updateDiaryDto: UpdateDiaryDto,
-  ) {
+  async deleteRecipeInDiary(userId: string, id: string) {
     try {
-      const { recipeIds, typeOfMeal } = updateDiaryDto;
-
-      this.repository.manager.transaction(async (manager) => {
-        await manager.delete(Diary, {
-          user: {
-            id: userId,
-          },
-          date,
-        });
-
-        const recipes = await this.recipeService.findManyByIds(recipeIds);
-        const diaries = recipes.map((recipe) => ({
-          date,
-          recipe: {
-            id: recipe.id,
-          },
-          user: {
-            id: userId,
-          },
-          typeOfMeal,
-        }));
-
-        await manager.save(Diary, diaries);
+      return this.repository.delete({
+        id,
+        user: {
+          id: userId,
+        },
       });
     } catch (error) {
       throw error;

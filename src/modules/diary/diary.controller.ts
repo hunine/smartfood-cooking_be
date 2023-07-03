@@ -2,7 +2,9 @@ import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -22,7 +24,6 @@ import {
   ResponseSuccess,
 } from '../../core/responses/response-exception';
 import { RESPONSE_MESSAGES } from '../../common/constants';
-import { UpdateDiaryDto } from '@app/diary/dto/update-diary.dto';
 import { DatePipe } from '../../common/pipes/date.pipe';
 
 @ApiTags('diaries')
@@ -85,30 +86,24 @@ export class DiaryController {
     }
   }
 
-  @Put('')
+  @Delete(':id')
   @AuthenticateGuard()
-  async updateDiary(
+  async deleteRecipeInDiary(
     @Req() request,
     @Res() response,
-    @Query('date', DatePipe) date: string,
-    @Body() updateDiaryDto: UpdateDiaryDto,
+    @Param('id') id: string,
   ) {
     try {
       const userId = request.user.id || '';
-      const data = await this.diaryService.updateDiary(
-        userId,
-        date,
-        updateDiaryDto,
-      );
+      await this.diaryService.deleteRecipeInDiary(userId, id);
 
       return new ResponseSuccess(
-        RESPONSE_MESSAGES.DIARY.UPDATE_DIARY_SUCCESS,
-        data,
+        RESPONSE_MESSAGES.DIARY.DELETE_DIARY_SUCCESS,
         true,
       ).toNoContentResponse(response);
     } catch (error) {
       return new ResponseError(
-        RESPONSE_MESSAGES.DIARY.UPDATE_DIARY_ERROR,
+        RESPONSE_MESSAGES.DIARY.DELETE_DIARY_ERROR,
         error,
       ).sendResponse(response);
     }
