@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { CookingHistoryModule } from './modules/cooking-history/cooking-history.module';
 import { RecipeRatingModule } from './modules/recipe-rating/recipe-rating.module';
+import { DiaryModule } from './modules/diary/diary.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RecipeRatingModule } from './modules/recipe-rating/recipe-rating.module
     RecipeModule,
     RecipeStepModule,
     RecipeRatingModule,
+    DiaryModule,
     MediaModule,
     DatabaseModule,
     CloudinaryModule,

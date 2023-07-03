@@ -16,6 +16,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Diary } from '@app/diary/entities';
 
 @Entity('recipes')
 export class Recipe extends BaseEntity {
@@ -51,6 +52,9 @@ export class Recipe extends BaseEntity {
 
   @OneToMany(() => RecipeRating, (recipeRating) => recipeRating.recipe)
   recipeRating: RecipeRating[];
+
+  @OneToMany(() => Diary, (diary) => diary.recipe)
+  diaries: Diary[];
 
   @ManyToMany(() => Media, (media) => media.recipe)
   @JoinTable({ name: 'recipes_media' })
