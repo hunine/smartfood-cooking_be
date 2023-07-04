@@ -1,6 +1,6 @@
 import { Recipe } from '@app/recipe/entities';
 
-interface DiaryItem {
+interface Meal {
   id: string;
   recipe: Recipe;
 }
@@ -8,7 +8,7 @@ interface DiaryItem {
 export interface IGetDiaryInterface {
   date: string;
   totalCalories: number;
-  breakfast?: DiaryItem[];
-  lunch?: DiaryItem[];
-  dinner?: DiaryItem[];
+  breakfast?: Meal[];
+  lunch?: Meal[];
+  dinner?: Meal[];
 }
