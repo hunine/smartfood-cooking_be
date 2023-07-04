@@ -36,13 +36,13 @@ export class User extends BaseEntity {
   })
   public gender?: Gender;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'int', nullable: true })
   public age?: number;
 
-  @Column({ type: 'decimal', nullable: true })
+  @Column({ type: 'float', nullable: true })
   public height?: number;
 
-  @Column({ type: 'decimal', nullable: true })
+  @Column({ type: 'float', nullable: true })
   public weight?: number;
 
   @Column({ type: 'varchar', name: 'start_nutrition_date', nullable: true })

@@ -58,12 +58,13 @@ export class UserService {
 
   async updateInfo(email: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.repository.findOneByOrFail({ email });
-    const newUser = {
+
+    const newUser = await this.repository.save({
       ...user,
       ...updateUserDto,
-    };
-
-    return this.repository.save(newUser);
+    });
+    delete newUser.password;
+    return newUser;
   }
 
   async updateStat(
@@ -73,7 +74,7 @@ export class UserService {
     try {
       let newUser;
 
-      this.repository.manager.transaction(async (manager) => {
+      await this.repository.manager.transaction(async (manager) => {
         const user = await manager.findOneByOrFail(User, { email });
 
         if (!user.startNutritionDate) {
@@ -85,6 +86,8 @@ export class UserService {
           ...updateUserStatDto,
         });
       });
+
+      delete newUser.password;
 
       return newUser;
     } catch (error) {
