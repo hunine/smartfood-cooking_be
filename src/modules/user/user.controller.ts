@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserStatDto } from './dto/update-user-stat.dto';
 import {
   ResponseError,
   ResponseSuccess,
@@ -53,7 +53,7 @@ export class UserController {
   @Patch('profile')
   @AuthenticateGuard()
   async update(
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserStatDto,
     @Req() request,
     @Res() response,
   ) {

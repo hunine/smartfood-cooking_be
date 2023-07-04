@@ -15,6 +15,8 @@ export const RESPONSE_MESSAGES = Object.freeze({
     UPDATE_PROFILE_SUCCESS: 'Update profile successful',
     UPDATE_PROFILE_ERROR: 'Update profile error',
     EMAIL_EXIST: 'Email already exist',
+    CHANGE_PASSWORD_SUCCESS: 'Change password successful',
+    CHANGE_PASSWORD_ERROR: 'Change password error',
   },
   RECIPE: {
     GET_RECIPE_SUCCESS: 'Get recipe successful',

@@ -3,7 +3,7 @@ import { UserProvider } from './user.provider';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { User } from './entities';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserStatDto } from './dto/update-user-stat.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
 import {
@@ -55,7 +55,7 @@ export class UserService {
     return this.repository.save(user);
   }
 
-  async update(email: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(email: string, updateUserDto: UpdateUserStatDto): Promise<User> {
     const user = await this.repository.findOneByOrFail({ email });
     const newUser = {
       ...user,
@@ -70,6 +70,13 @@ export class UserService {
       email,
       ...resetPasswordDto,
     });
+  }
+
+  async changePassword(email: string, password: string) {
+    const user = await this.findOneByEmail(email, { getPassword: true });
+
+    user.password = password;
+    return this.repository.save(user);
   }
 
   async remove(email: string) {
