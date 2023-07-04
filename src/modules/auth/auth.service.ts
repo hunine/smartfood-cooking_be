@@ -15,7 +15,7 @@ export class AuthService {
   ) {}
 
   private generateAccessToken(user) {
-    const payload = { email: user.email };
+    const payload = { user };
 
     return {
       accessToken: this.jwtService.sign(payload),
@@ -31,6 +31,8 @@ export class AuthService {
     if (!user || !compareHashString(password, user.password)) {
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    delete user.password;
 
     return this.generateAccessToken(user);
   }
