@@ -45,6 +45,9 @@ export class User extends BaseEntity {
   @Column({ type: 'decimal', nullable: true })
   public weight?: number;
 
+  @Column({ type: 'varchar', name: 'start_nutrition_date', nullable: true })
+  public startNutritionDate?: string;
+
   @OneToOne(() => Media, (media) => media.user)
   @JoinColumn({ name: 'media_id' })
   avatar: Media;

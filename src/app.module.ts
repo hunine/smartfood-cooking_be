@@ -14,7 +14,6 @@ import { UserModule } from './modules/user/user.module';
 import { CookingHistoryModule } from './modules/cooking-history/cooking-history.module';
 import { RecipeRatingModule } from './modules/recipe-rating/recipe-rating.module';
 import { DiaryModule } from './modules/diary/diary.module';
-import { StartNutritionModule } from './modules/start-nutrition/start-nutrition.module';
 
 @Module({
   imports: [
@@ -34,7 +33,6 @@ import { StartNutritionModule } from './modules/start-nutrition/start-nutrition.
     AuthModule,
     UserModule,
     CookingHistoryModule,
-    StartNutritionModule,
   ],
   controllers: [],
   providers: [],

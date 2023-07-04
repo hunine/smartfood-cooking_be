@@ -16,15 +16,12 @@ import {
 } from 'nestjs-paginate';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { StartNutritionService } from '@app/start-nutrition/start-nutrition.services';
-import { StartNutrition } from '@app/start-nutrition/entities';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(UserProvider.REPOSITORY)
     private readonly repository: Repository<User>,
-    private readonly startNutritionService: StartNutritionService,
   ) {}
 
   async findOneByEmail(
@@ -78,21 +75,15 @@ export class UserService {
 
       this.repository.manager.transaction(async (manager) => {
         const user = await manager.findOneByOrFail(User, { email });
+
+        if (!user.startNutritionDate) {
+          user.startNutritionDate = DateTimeHelper.getTodayString();
+        }
+
         newUser = await manager.save(User, {
           ...user,
           ...updateUserStatDto,
         });
-
-        const startNutrition = await manager.find(StartNutrition, {
-          where: { userId: newUser.id },
-        });
-
-        if (startNutrition.length === 0) {
-          await manager.save(StartNutrition, {
-            userId: newUser.id,
-            date: DateTimeHelper.getTodayString(),
-          });
-        }
       });
 
       return newUser;
