@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateCookingHistoryDto {
+export class CreateStartNutritionDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  userEmail: string;
+  public userId!: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  recipeId: string;
+  public date: string;
 }

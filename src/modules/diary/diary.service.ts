@@ -30,7 +30,7 @@ export class DiaryService {
           },
           date,
         },
-        relations: ['recipe'],
+        relations: ['recipe', 'recipe.media'],
       });
 
       diary.forEach((item) => {
