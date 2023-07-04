@@ -15,6 +15,7 @@ import {
   paginate,
 } from 'nestjs-paginate';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -55,11 +56,24 @@ export class UserService {
     return this.repository.save(user);
   }
 
-  async update(email: string, updateUserDto: UpdateUserStatDto): Promise<User> {
+  async updateInfo(email: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.repository.findOneByOrFail({ email });
     const newUser = {
       ...user,
       ...updateUserDto,
+    };
+
+    return this.repository.save(newUser);
+  }
+
+  async updateStat(
+    email: string,
+    updateUserStatDto: UpdateUserStatDto,
+  ): Promise<User> {
+    const user = await this.repository.findOneByOrFail({ email });
+    const newUser = {
+      ...user,
+      ...updateUserStatDto,
     };
 
     return this.repository.save(newUser);

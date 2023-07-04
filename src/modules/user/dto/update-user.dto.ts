@@ -11,9 +11,4 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   public lastName: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  public avatar: string;
 }
