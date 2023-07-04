@@ -34,6 +34,7 @@ export class AuthController {
   async login(@Body() loginData: ValidateAuthDto, @Res() response) {
     try {
       const data = await this.authService.validateLogin(loginData);
+
       return new ResponseSuccess(
         RESPONSE_MESSAGES.LOGIN.SUCCESS,
         data,

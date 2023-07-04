@@ -59,10 +59,15 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
-      await this.userService.updateInfo(request.user.email, updateUserDto);
+      const data = await this.userService.updateInfo(
+        request.user.email,
+        updateUserDto,
+      );
 
       return new ResponseSuccess(
         RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_SUCCESS,
+        data,
+        true,
       ).toOkResponse(response);
     } catch (error) {
       return new ResponseError(
@@ -80,10 +85,15 @@ export class UserController {
     @Res() response,
   ) {
     try {
-      await this.userService.updateStat(request.user.email, updateUserStatDto);
+      const data = await this.userService.updateStat(
+        request.user.email,
+        updateUserStatDto,
+      );
 
       return new ResponseSuccess(
         RESPONSE_MESSAGES.USER.UPDATE_USER_STAT_SUCCESS,
+        data,
+        true,
       ).toOkResponse(response);
     } catch (error) {
       return new ResponseError(
