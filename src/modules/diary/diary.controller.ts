@@ -77,7 +77,7 @@ export class DiaryController {
         RESPONSE_MESSAGES.DIARY.CREATE_DIARY_SUCCESS,
         data,
         true,
-      ).toNoContentResponse(response);
+      ).toOkResponse(response);
     } catch (error) {
       return new ResponseError(
         RESPONSE_MESSAGES.DIARY.CREATE_DIARY_ERROR,

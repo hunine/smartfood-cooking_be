@@ -3,7 +3,7 @@ import { UserProvider } from './user.provider';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { User } from './entities';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserStatDto } from './dto/update-user-stat.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
 import {
@@ -15,6 +15,7 @@ import {
   paginate,
 } from 'nestjs-paginate';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -55,7 +56,7 @@ export class UserService {
     return this.repository.save(user);
   }
 
-  async update(email: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async updateInfo(email: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.repository.findOneByOrFail({ email });
     const newUser = {
       ...user,
@@ -65,11 +66,44 @@ export class UserService {
     return this.repository.save(newUser);
   }
 
+  async updateStat(
+    email: string,
+    updateUserStatDto: UpdateUserStatDto,
+  ): Promise<User> {
+    try {
+      let newUser;
+
+      this.repository.manager.transaction(async (manager) => {
+        const user = await manager.findOneByOrFail(User, { email });
+
+        if (!user.startNutritionDate) {
+          user.startNutritionDate = DateTimeHelper.getTodayString();
+        }
+
+        newUser = await manager.save(User, {
+          ...user,
+          ...updateUserStatDto,
+        });
+      });
+
+      return newUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async resetPassword(email: string, resetPasswordDto: ResetPasswordDto) {
     return this.repository.save({
       email,
       ...resetPasswordDto,
     });
+  }
+
+  async changePassword(email: string, password: string) {
+    const user = await this.findOneByEmail(email, { getPassword: true });
+
+    user.password = password;
+    return this.repository.save(user);
   }
 
   async remove(email: string) {

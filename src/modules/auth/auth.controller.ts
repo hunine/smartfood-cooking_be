@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Post,
+  Put,
+  Req,
   Res,
   UseFilters,
   UseInterceptors,
@@ -18,6 +20,8 @@ import {
   ResponseError,
   ResponseSuccess,
 } from 'src/core/responses/response-exception';
+import { AuthenticateGuard } from './decorators/auth.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -53,6 +57,31 @@ export class AuthController {
     } catch (error) {
       return new ResponseError(
         RESPONSE_MESSAGES.REGISTER.ERROR,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
+  @Put('change-password')
+  @AuthenticateGuard()
+  async changePassword(
+    @Req() request,
+    @Res() response,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    try {
+      const userEmail = request.user.email;
+      const data = await this.authService.changePassword(
+        userEmail,
+        changePasswordDto,
+      );
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.USER.CHANGE_PASSWORD_SUCCESS,
+        data,
+      ).toCreatedResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.USER.CHANGE_PASSWORD_ERROR,
         error,
       ).sendResponse(response);
     }

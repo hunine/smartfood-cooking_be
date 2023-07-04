@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserStatDto } from './dto/update-user-stat.dto';
 import {
   ResponseError,
   ResponseSuccess,
@@ -21,6 +21,7 @@ import { HttpExceptionFilter } from 'src/core/filters/http-exception.filter';
 import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';
 import { TransformInterceptor } from 'src/core/interceptors/transform.interceptor';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -50,22 +51,43 @@ export class UserController {
     }
   }
 
-  @Patch('profile')
+  @Patch('info')
   @AuthenticateGuard()
-  async update(
+  async updateInfo(
+    @Req() request,
+    @Res() response,
     @Body() updateUserDto: UpdateUserDto,
+  ) {
+    try {
+      await this.userService.updateInfo(request.user.email, updateUserDto);
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_SUCCESS,
+      ).toOkResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_ERROR,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
+  @Patch('stat')
+  @AuthenticateGuard()
+  async updateStat(
+    @Body() updateUserStatDto: UpdateUserStatDto,
     @Req() request,
     @Res() response,
   ) {
     try {
-      await this.userService.update(request.user.email, updateUserDto);
+      await this.userService.updateStat(request.user.email, updateUserStatDto);
 
       return new ResponseSuccess(
-        RESPONSE_MESSAGES.USER.UPDATE_PROFILE_SUCCESS,
+        RESPONSE_MESSAGES.USER.UPDATE_USER_STAT_SUCCESS,
       ).toOkResponse(response);
     } catch (error) {
       return new ResponseError(
-        RESPONSE_MESSAGES.USER.UPDATE_PROFILE_ERROR,
+        RESPONSE_MESSAGES.USER.UPDATE_USER_STAT_ERROR,
         error,
       ).sendResponse(response);
     }

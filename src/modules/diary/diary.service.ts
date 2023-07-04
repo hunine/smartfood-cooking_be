@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DiaryProvider } from '@app/diary/diary.provider';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Diary } from '@app/diary/entities';
 import { CreateDiaryDto } from '@app/diary/dto/create-diary.dto';
 import { RecipeService } from '@app/recipe/recipe.service';
@@ -30,7 +30,7 @@ export class DiaryService {
           },
           date,
         },
-        relations: ['recipe'],
+        relations: ['recipe', 'recipe.media'],
       });
 
       diary.forEach((item) => {
@@ -69,7 +69,16 @@ export class DiaryService {
         typeOfMeal,
       }));
 
-      return this.repository.save(diaries);
+      const newDiaries = await this.repository.save(diaries);
+      newDiaries.map((item) => item.id);
+
+      return this.repository.find({
+        where: {
+          id: In(newDiaries.map((item) => item.id)),
+        },
+        relations: ['recipe', 'recipe.media'],
+        select: ['id', 'recipe'],
+      });
     } catch (error) {
       throw error;
     }
