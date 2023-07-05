@@ -85,16 +85,16 @@ export class DiaryController {
     }
   }
 
-  @Delete(':id')
+  @Delete('meals/:mealId')
   @AuthenticateGuard()
   async deleteRecipeInDiary(
     @Req() request,
     @Res() response,
-    @Param('id') id: string,
+    @Param('mealId') mealId: string,
   ) {
     try {
       const userId = request.user.id || '';
-      await this.diaryService.deleteRecipeInDiary(userId, id);
+      await this.diaryService.deleteRecipeInDiary(userId, mealId);
 
       return new ResponseSuccess(
         RESPONSE_MESSAGES.DIARY.DELETE_DIARY_SUCCESS,
