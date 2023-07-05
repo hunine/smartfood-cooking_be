@@ -13,6 +13,8 @@ import { CreateCuisineDto } from './dto/create-cuisine.dto';
 import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { AuthorizeGuard } from '@app/auth/decorators/auth.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('cuisine')
 @Controller('cuisine')
@@ -30,11 +32,13 @@ export class CuisineController {
   }
 
   @Post()
+  @AuthorizeGuard([Role.ADMIN])
   async create(@Body() createCuisineDto: CreateCuisineDto) {
     return this.cuisineService.create(createCuisineDto);
   }
 
   @Patch(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateCuisineDto: UpdateCuisineDto,
@@ -43,11 +47,13 @@ export class CuisineController {
   }
 
   @Delete(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.cuisineService.remove(id);
   }
 
   @Delete()
+  @AuthorizeGuard([Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.cuisineService.multipleRemove(ids);
   }

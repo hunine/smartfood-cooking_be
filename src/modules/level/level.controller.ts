@@ -13,6 +13,8 @@ import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { AuthorizeGuard } from '@app/auth/decorators/auth.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('levels')
 @Controller('levels')
@@ -30,11 +32,13 @@ export class LevelController {
   }
 
   @Post()
+  @AuthorizeGuard([Role.ADMIN])
   async create(@Body() createLevelDto: CreateLevelDto) {
     return this.levelService.create(createLevelDto);
   }
 
   @Patch(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateLevelDto: UpdateLevelDto,
@@ -43,11 +47,13 @@ export class LevelController {
   }
 
   @Delete(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.levelService.remove(id);
   }
 
   @Delete()
+  @AuthorizeGuard([Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.levelService.multipleRemove(ids);
   }
