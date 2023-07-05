@@ -16,7 +16,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Diary } from '@app/diary/entities';
+import { Meal } from '@app/meal/entities';
 
 @Entity('recipes')
 export class Recipe extends BaseEntity {
@@ -29,7 +29,7 @@ export class Recipe extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   public description: string;
 
-  @Column({ type: 'decimal', default: 0 })
+  @Column({ type: 'float', default: 0 })
   public rating: number;
 
   @ManyToOne(() => Level, (level) => level.recipes)
@@ -53,8 +53,8 @@ export class Recipe extends BaseEntity {
   @OneToMany(() => RecipeRating, (recipeRating) => recipeRating.recipe)
   recipeRating: RecipeRating[];
 
-  @OneToMany(() => Diary, (diary) => diary.recipe)
-  diaries: Diary[];
+  @OneToMany(() => Meal, (meal) => meal.recipe)
+  meals: Meal[];
 
   @ManyToMany(() => Media, (media) => media.recipe)
   @JoinTable({ name: 'recipes_media' })

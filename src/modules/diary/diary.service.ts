@@ -1,18 +1,47 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { DiaryProvider } from '@app/diary/diary.provider';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Diary } from '@app/diary/entities';
 import { CreateDiaryDto } from '@app/diary/dto/create-diary.dto';
 import { RecipeService } from '@app/recipe/recipe.service';
 import { IGetDiaryInterface } from './interfaces/get-diary.interface';
+import { Meal } from '@app/meal/entities';
+import { MealService } from '@app/meal/meal.service';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @Inject(DiaryProvider.REPOSITORY)
     private readonly repository: Repository<Diary>,
+    private readonly mealService: MealService,
+    @Inject(forwardRef(() => RecipeService))
     private readonly recipeService: RecipeService,
   ) {}
+
+  private async createNewDiary(userId: string, date: string) {
+    return this.repository.save({
+      date,
+      user: {
+        id: userId,
+      },
+    });
+  }
+
+  private async findOneDiary(userId: string, date: string) {
+    return this.repository.findOne({
+      where: {
+        user: {
+          id: userId,
+        },
+        date,
+      },
+    });
+  }
 
   async getDiary(userId: string, date: string) {
     try {
@@ -23,27 +52,25 @@ export class DiaryService {
         lunch: [],
         dinner: [],
       };
-      const diary = await this.repository.find({
+      const diary = await this.repository.findOne({
         where: {
           user: {
             id: userId,
           },
           date,
         },
-        relations: ['recipe', 'recipe.media'],
+        relations: ['meals', 'meals.recipe', 'meals.recipe.media'],
       });
 
-      diary.forEach((item) => {
+      diary.meals.forEach((item) => {
         if (!returnData[item.typeOfMeal]) {
           returnData[item.typeOfMeal] = [];
         }
-
         returnData[item.typeOfMeal].push({
           id: item.id,
           recipe: item.recipe,
         });
       });
-
       return returnData;
     } catch (error) {
       throw error;
@@ -58,39 +85,55 @@ export class DiaryService {
     try {
       const { recipeIds, typeOfMeal } = createDiaryDto;
       const recipes = await this.recipeService.findManyByIds(recipeIds);
-      const diaries = recipes.map((recipe) => ({
-        date,
-        recipe: {
-          id: recipe.id,
-        },
-        user: {
-          id: userId,
-        },
-        typeOfMeal,
-      }));
+      let diary = await this.findOneDiary(userId, date);
 
-      const newDiaries = await this.repository.save(diaries);
-      newDiaries.map((item) => item.id);
+      if (!diary) {
+        diary = await this.createNewDiary(userId, date);
+      }
+
+      await this.repository.manager.transaction(async (manager) => {
+        const meals = recipes.map((recipe) => ({
+          recipe: {
+            id: recipe.id,
+          },
+          diary: {
+            id: diary.id,
+          },
+          typeOfMeal,
+        }));
+        await manager.save(Meal, meals);
+      });
 
       return this.repository.find({
         where: {
-          id: In(newDiaries.map((item) => item.id)),
+          id: diary.id,
         },
-        relations: ['recipe', 'recipe.media'],
-        select: ['id', 'recipe'],
+        relations: ['meals', 'meals.recipe', 'meals.recipe.media'],
       });
     } catch (error) {
       throw error;
     }
   }
 
-  async deleteRecipeInDiary(userId: string, id: string) {
+  async deleteRecipeInDiary(userId: string, mealId: string) {
     try {
-      return this.repository.delete({
-        id,
-        user: {
-          id: userId,
-        },
+      await this.repository.manager.transaction(async (manager) => {
+        const meal = await manager.findOne(Meal, {
+          where: {
+            id: mealId,
+            diary: {
+              user: {
+                id: userId,
+              },
+            },
+          },
+        });
+
+        if (!meal) {
+          throw new NotFoundException('Meal not found');
+        }
+
+        await manager.delete(Meal, mealId);
       });
     } catch (error) {
       throw error;

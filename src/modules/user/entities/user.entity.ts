@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Diary } from '@app/diary/entities';
+import { PracticeModeLabel } from 'src/common/enums/practice-mode.enum';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -47,6 +48,14 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'start_nutrition_date', nullable: true })
   public startNutritionDate?: string;
+
+  @Column({
+    type: 'enum',
+    enum: PracticeModeLabel,
+    name: 'practice_mode',
+    nullable: true,
+  })
+  public practiceMode?: string;
 
   @OneToOne(() => Media, (media) => media.user)
   @JoinColumn({ name: 'media_id' })

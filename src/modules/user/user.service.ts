@@ -16,12 +16,20 @@ import {
 } from 'nestjs-paginate';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { DiaryService } from '@app/diary/diary.service';
+import { Diary } from '@app/diary/entities';
+import { NutritionHelper } from 'src/helpers';
+import {
+  PracticeMode,
+  PracticeModeLabel,
+} from 'src/common/enums/practice-mode.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(UserProvider.REPOSITORY)
     private readonly repository: Repository<User>,
+    private readonly diaryService: DiaryService,
   ) {}
 
   async findOneByEmail(
@@ -85,6 +93,28 @@ export class UserService {
           ...user,
           ...updateUserStatDto,
         });
+
+        // const diary = await manager.findOne(Diary, {
+        //   where: {
+        //     user: { id: newUser.id },
+        //     date: MoreThanOrEqual(DateTimeHelper.getTodayString()),
+        //   },
+        // });
+
+        // console.log(user.practiceMode);
+        // console.log(PracticeMode[updateUserStatDto.practiceMode]);
+
+        // const nutrition = new NutritionHelper(
+        //   newUser.height,
+        //   newUser.weight,
+        //   newUser.age,
+        //   newUser.gender,
+        //   updateUserStatDto.practiceMode,
+        // );
+        // nutrition.getTDEE();
+
+        // console.log(diary);
+        // console.log(nutrition.getTDEE());
       });
 
       delete newUser.password;

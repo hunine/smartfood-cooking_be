@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 import { Gender } from 'src/common/enums/gender.enum';
+import { PracticeModeLabel } from 'src/common/enums/practice-mode.enum';
 
 export class UpdateUserStatDto {
   @ApiProperty()
@@ -22,4 +23,9 @@ export class UpdateUserStatDto {
   @IsNumber()
   @IsNotEmpty()
   public weight: number;
+
+  @ApiProperty()
+  @IsEnum(PracticeModeLabel)
+  @IsNotEmpty()
+  public practiceMode: PracticeModeLabel;
 }
