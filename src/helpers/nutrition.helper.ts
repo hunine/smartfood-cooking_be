@@ -42,6 +42,6 @@ export class NutritionHelper {
   getTDEE() {
     this.#tdee = this.getBMR() * this.#practiceIndex;
 
-    return this.#tdee.toFixed(2);
+    return parseFloat(this.#tdee.toFixed(2));
   }
 }

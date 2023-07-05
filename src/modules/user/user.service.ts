@@ -19,10 +19,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DiaryService } from '@app/diary/diary.service';
 import { Diary } from '@app/diary/entities';
 import { NutritionHelper } from 'src/helpers';
-import {
-  PracticeMode,
-  PracticeModeLabel,
-} from 'src/common/enums/practice-mode.enum';
+import { PracticeModeLabel } from 'src/common/enums/practice-mode.enum';
 
 @Injectable()
 export class UserService {
@@ -94,27 +91,23 @@ export class UserService {
           ...updateUserStatDto,
         });
 
-        // const diary = await manager.findOne(Diary, {
-        //   where: {
-        //     user: { id: newUser.id },
-        //     date: MoreThanOrEqual(DateTimeHelper.getTodayString()),
-        //   },
-        // });
+        const diary = await manager.findOne(Diary, {
+          where: {
+            user: { id: newUser.id },
+            date: DateTimeHelper.getTodayString(),
+          },
+        });
 
-        // console.log(user.practiceMode);
-        // console.log(PracticeMode[updateUserStatDto.practiceMode]);
+        const nutrition = new NutritionHelper(
+          newUser.height,
+          newUser.weight,
+          newUser.age,
+          newUser.gender,
+          updateUserStatDto.practiceMode,
+        );
 
-        // const nutrition = new NutritionHelper(
-        //   newUser.height,
-        //   newUser.weight,
-        //   newUser.age,
-        //   newUser.gender,
-        //   updateUserStatDto.practiceMode,
-        // );
-        // nutrition.getTDEE();
-
-        // console.log(diary);
-        // console.log(nutrition.getTDEE());
+        diary.totalCalories = nutrition.getTDEE();
+        await manager.save(Diary, diary);
       });
 
       delete newUser.password;
@@ -172,6 +165,28 @@ export class UserService {
         totalUsers,
         newUsersLastWeek,
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async caculatorTotalCalories(userId) {
+    try {
+      const user = await this.repository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+      const { height, weight, age, gender, practiceMode } = user;
+      const nutrition = new NutritionHelper(
+        height,
+        weight,
+        age,
+        gender,
+        practiceMode as PracticeModeLabel,
+      );
+
+      return nutrition.getTDEE();
     } catch (error) {
       throw error;
     }

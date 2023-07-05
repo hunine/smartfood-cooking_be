@@ -5,9 +5,15 @@ import { DiaryService } from '@app/diary/diary.service';
 import { DiaryController } from '@app/diary/diary.controller';
 import { RecipeModule } from '@app/recipe/recipe.module';
 import { MealModule } from '@app/meal/meal.module';
+import { UserModule } from '@app/user/user.module';
 
 @Module({
-  imports: [DatabaseModule, MealModule, forwardRef(() => RecipeModule)],
+  imports: [
+    DatabaseModule,
+    MealModule,
+    forwardRef(() => RecipeModule),
+    forwardRef(() => UserModule),
+  ],
   controllers: [DiaryController],
   providers: [DiaryService, ...diaryProvider],
   exports: [DiaryService],
