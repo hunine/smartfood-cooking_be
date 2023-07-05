@@ -106,8 +106,19 @@ export class UserService {
           updateUserStatDto.practiceMode,
         );
 
-        diary.totalCalories = nutrition.getTDEE();
-        await manager.save(Diary, diary);
+        if (diary) {
+          diary.totalCalories = nutrition.getTDEE();
+          await manager.save(Diary, diary);
+        } else {
+          const newDiary = manager.create(Diary, {
+            user: {
+              id: newUser.id,
+            },
+            date: DateTimeHelper.getTodayString(),
+            totalCalories: nutrition.getTDEE(),
+          });
+          await manager.save(Diary, newDiary);
+        }
       });
 
       delete newUser.password;
