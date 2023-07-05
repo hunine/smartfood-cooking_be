@@ -5,27 +5,31 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { DiaryProvider } from '@app/diary/diary.provider';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Diary } from '@app/diary/entities';
 import { CreateDiaryDto } from '@app/diary/dto/create-diary.dto';
 import { RecipeService } from '@app/recipe/recipe.service';
 import { IGetDiaryInterface } from './interfaces/get-diary.interface';
 import { Meal } from '@app/meal/entities';
-import { MealService } from '@app/meal/meal.service';
+import { UserService } from '@app/user/user.service';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @Inject(DiaryProvider.REPOSITORY)
     private readonly repository: Repository<Diary>,
-    private readonly mealService: MealService,
     @Inject(forwardRef(() => RecipeService))
     private readonly recipeService: RecipeService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
   private async createNewDiary(userId: string, date: string) {
+    const totalCalories = await this.userService.caculatorTotalCalories(userId);
+
     return this.repository.save({
       date,
+      totalCalories,
       user: {
         id: userId,
       },
@@ -52,6 +56,7 @@ export class DiaryService {
         lunch: [],
         dinner: [],
       };
+
       const diary = await this.repository.findOne({
         where: {
           user: {
@@ -59,18 +64,37 @@ export class DiaryService {
           },
           date,
         },
-        relations: ['meals', 'meals.recipe', 'meals.recipe.media'],
+        relations: ['user', 'meals', 'meals.recipe', 'meals.recipe.media'],
       });
 
-      diary.meals.forEach((item) => {
-        if (!returnData[item.typeOfMeal]) {
-          returnData[item.typeOfMeal] = [];
-        }
-        returnData[item.typeOfMeal].push({
-          id: item.id,
-          recipe: item.recipe,
+      if (diary) {
+        diary.meals.forEach((item) => {
+          if (!returnData[item.typeOfMeal]) {
+            returnData[item.typeOfMeal] = [];
+          }
+          returnData[item.typeOfMeal].push({
+            id: item.id,
+            recipe: item.recipe,
+          });
         });
-      });
+
+        returnData.totalCalories = diary.totalCalories;
+      } else {
+        const recentDiary = await this.repository.findOne({
+          where: {
+            user: {
+              id: userId,
+            },
+            date: LessThan(date),
+          },
+          order: {
+            date: 'DESC',
+          },
+        });
+
+        returnData.totalCalories = recentDiary.totalCalories;
+      }
+
       return returnData;
     } catch (error) {
       throw error;
