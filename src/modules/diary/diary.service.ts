@@ -12,12 +12,14 @@ import { RecipeService } from '@app/recipe/recipe.service';
 import { IGetDiaryInterface } from './interfaces/get-diary.interface';
 import { Meal } from '@app/meal/entities';
 import { UserService } from '@app/user/user.service';
+import { MealService } from '@app/meal/meal.service';
 
 @Injectable()
 export class DiaryService {
   constructor(
     @Inject(DiaryProvider.REPOSITORY)
     private readonly repository: Repository<Diary>,
+    private readonly mealRepository: MealService,
     @Inject(forwardRef(() => RecipeService))
     private readonly recipeService: RecipeService,
     @Inject(forwardRef(() => UserService))
@@ -115,6 +117,8 @@ export class DiaryService {
         diary = await this.createNewDiary(userId, date);
       }
 
+      let resultIds = [];
+
       await this.repository.manager.transaction(async (manager) => {
         const meals = recipes.map((recipe) => ({
           recipe: {
@@ -125,15 +129,13 @@ export class DiaryService {
           },
           typeOfMeal,
         }));
-        await manager.save(Meal, meals);
+
+        const test = await manager.save(Meal, meals);
+
+        resultIds = test.map((item) => item.id);
       });
 
-      return this.repository.find({
-        where: {
-          id: diary.id,
-        },
-        relations: ['meals', 'meals.recipe', 'meals.recipe.media'],
-      });
+      return this.mealRepository.findManyByIds(resultIds);
     } catch (error) {
       throw error;
     }
