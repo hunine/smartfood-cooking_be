@@ -2,6 +2,7 @@ import { Media } from '@app/media/entities';
 import { RecipeRating } from '@app/recipe-rating/entities';
 import { BaseEntity } from '@base/base.entity';
 import { Gender } from 'src/common/enums/gender.enum';
+import { Role } from 'src/common/enums/role.enum';
 import {
   Column,
   Entity,
@@ -23,6 +24,9 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'last_name' })
   public lastName: string;
+
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  public role: Role;
 
   @Column({ type: 'varchar', unique: true })
   public email: string;

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { MealProvider } from './meal.provider';
 import { Meal } from './entities';
 
@@ -20,5 +20,19 @@ export class MealService {
 
   async delete(id: string): Promise<void> {
     await this.repository.delete(id);
+  }
+
+  async findManyByIds(ids) {
+    try {
+      return this.repository.find({
+        where: {
+          id: In(ids),
+        },
+        relations: ['recipe', 'recipe.media', 'diary'],
+        select: ['id', 'typeOfMeal', 'recipe'],
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 }

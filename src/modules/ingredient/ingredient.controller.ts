@@ -19,6 +19,8 @@ import {
   ResponseSuccess,
 } from 'src/core/responses/response-exception';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
+import { AuthorizeGuard } from '@app/auth/decorators/auth.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('ingredients')
 @Controller('ingredients')
@@ -53,11 +55,13 @@ export class IngredientController {
   }
 
   @Post()
+  @AuthorizeGuard([Role.ADMIN])
   async create(@Body() createIngredientDto: CreateIngredientDto) {
     return this.ingredientService.create(createIngredientDto);
   }
 
   @Patch(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateIngredientDto: UpdateIngredientDto,
@@ -66,11 +70,13 @@ export class IngredientController {
   }
 
   @Delete(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.ingredientService.remove(id);
   }
 
   @Delete()
+  @AuthorizeGuard([Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.ingredientService.multipleRemove(ids);
   }

@@ -18,7 +18,10 @@ import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
-import { AuthenticateGuard } from '@app/auth/decorators/auth.decorator';
+import {
+  AuthenticateGuard,
+  AuthorizeGuard,
+} from '@app/auth/decorators/auth.decorator';
 import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';
 import { TransformInterceptor } from 'src/core/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from 'src/core/filters/http-exception.filter';
@@ -27,6 +30,7 @@ import {
   ResponseSuccess,
 } from 'src/core/responses/response-exception';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('recipes')
 @Controller('recipes')
@@ -112,11 +116,13 @@ export class RecipeController {
   }
 
   @Post()
+  @AuthorizeGuard([Role.ADMIN])
   async create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     return this.recipeService.create(createRecipeDto);
   }
 
   @Put(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
@@ -125,11 +131,13 @@ export class RecipeController {
   }
 
   @Delete(':id')
+  @AuthorizeGuard([Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.recipeService.remove(id);
   }
 
   @Delete()
+  @AuthorizeGuard([Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.recipeService.multipleRemove(ids);
   }

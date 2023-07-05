@@ -11,6 +11,8 @@ import { RecipeStepService } from './recipe-step.service';
 import { CreateRecipeStepDto } from './dto/create-recipe-step.dto';
 import { UpdateRecipeStepDto } from './dto/update-recipe-step.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthorizeGuard } from '@app/auth/decorators/auth.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('recipe-steps')
 @Controller('recipe-steps')
@@ -18,6 +20,7 @@ export class RecipeStepController {
   constructor(private readonly recipeStepService: RecipeStepService) {}
 
   @Post()
+  @AuthorizeGuard([Role.ADMIN])
   create(@Body() createRecipeStepDto: CreateRecipeStepDto) {
     return this.recipeStepService.create(createRecipeStepDto);
   }
@@ -33,6 +36,7 @@ export class RecipeStepController {
   }
 
   @Patch(':id')
+  @AuthorizeGuard([Role.ADMIN])
   update(
     @Param('id') id: string,
     @Body() updateRecipeStepDto: UpdateRecipeStepDto,
@@ -41,6 +45,7 @@ export class RecipeStepController {
   }
 
   @Delete(':id')
+  @AuthorizeGuard([Role.ADMIN])
   remove(@Param('id') id: string) {
     return this.recipeStepService.remove(+id);
   }

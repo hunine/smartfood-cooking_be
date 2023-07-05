@@ -16,12 +16,16 @@ import {
   ResponseSuccess,
 } from 'src/core/responses/response-exception';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
-import { AuthenticateGuard } from '@app/auth/decorators/auth.decorator';
+import {
+  AuthenticateGuard,
+  AuthorizeGuard,
+} from '@app/auth/decorators/auth.decorator';
 import { HttpExceptionFilter } from 'src/core/filters/http-exception.filter';
 import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';
 import { TransformInterceptor } from 'src/core/interceptors/transform.interceptor';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('users')
 @Controller('users')
@@ -104,6 +108,7 @@ export class UserController {
   }
 
   @Get('count')
+  @AuthorizeGuard([Role.ADMIN])
   async countAll(@Res() response) {
     try {
       const data = await this.userService.countAll();
@@ -121,6 +126,7 @@ export class UserController {
   }
 
   @Get()
+  @AuthorizeGuard([Role.ADMIN])
   async findAll(@Paginate() query: PaginateQuery) {
     return this.userService.findAll(query);
   }
