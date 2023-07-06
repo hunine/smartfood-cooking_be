@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
+import * as redisStore from 'cache-manager-redis-store';
 import { DatabaseModule } from './modules/base/database/database.module';
 import { RecipeModule } from './modules/recipe/recipe.module';
 import { LevelModule } from './modules/level/level.module';
@@ -15,9 +16,18 @@ import { CookingHistoryModule } from './modules/cooking-history/cooking-history.
 import { RecipeRatingModule } from './modules/recipe-rating/recipe-rating.module';
 import { DiaryModule } from './modules/diary/diary.module';
 import { MealModule } from './modules/meal/meal.module';
+import { REDIS_CONFIG } from '@config/env';
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      username: REDIS_CONFIG.USERNAME,
+      password: REDIS_CONFIG.PASSWORD,
+      host: REDIS_CONFIG.HOST,
+      port: REDIS_CONFIG.PORT,
+    }),
     DatabaseModule,
     QuantificationModule,
     LevelModule,

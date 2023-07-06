@@ -24,6 +24,13 @@ export const DATABASE_CONFIG = {
   MIGRATIONS: env.MIGRATIONS || 'dist/migrations/*{.ts,.js}',
   MIGRATIONS_TABLE_NAME: env.MIGRATIONS_TABLE_NAME || 'typeorm_migrations',
 };
+export const REDIS_CONFIG = {
+  HOST: env.REDIS_HOST || 'localhost',
+  PORT: parseInt(env.REDIS_PORT, 10) || 6379,
+  TTL: parseInt(env.REDIS_TTL, 10) || 600,
+  USERNAME: env.REDIS_USERNAME || '',
+  PASSWORD: env.REDIS_PASSWORD || '',
+};
 
 export const CLOUDINARY = {
   CLOUD_NAME: env.CLOUDINARY_CLOUD_NAME || '',
