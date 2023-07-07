@@ -31,6 +31,8 @@ import {
 } from 'src/core/responses/response-exception';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
 import { Role } from 'src/common/enums/role.enum';
+import { RecommenderConfigDto } from './dto/recommender-config.dto';
+import { RECOMMENDER_SERVICE } from '@config/env';
 
 @ApiTags('recipes')
 @Controller('recipes')
@@ -119,6 +121,28 @@ export class RecipeController {
   @AuthorizeGuard([Role.ADMIN])
   async create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     return this.recipeService.create(createRecipeDto);
+  }
+
+  @Post('recommend/config')
+  async configRecommendService(
+    @Res() response,
+    @Body()
+    data: RecommenderConfigDto,
+  ) {
+    try {
+      const url = data.url || '';
+      RECOMMENDER_SERVICE.URL = url;
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.RECIPE.RECOMMEND_SUCCESS,
+        true,
+      ).toNoContentResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.RECIPE.RECOMMEND_FAILED,
+        error,
+      ).sendResponse(response);
+    }
   }
 
   @Put(':id')
