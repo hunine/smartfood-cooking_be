@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { CreateCuisineDto } from './dto/create-cuisine.dto';
 import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { Cuisine } from './entities';
@@ -11,17 +11,35 @@ import {
   Paginated,
   paginate,
 } from 'nestjs-paginate';
+import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
+import { RECOMMENDER_SERVICE_STATUS, REDIS_PREFIX } from 'src/common/constants';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CuisineService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
     @Inject(CuisineProvider.REPOSITORY)
     private readonly repository: Repository<Cuisine>,
   ) {}
 
+  private async updateRecommenderDataframe() {
+    const result: any = await RecommenderServiceHelper.training();
+
+    if (result.data.status === RECOMMENDER_SERVICE_STATUS.SUCCESS) {
+      const key = `${REDIS_PREFIX.RECOMMENDER_RECIPES}*`;
+      await this.cacheManager.del(key);
+    }
+  }
+
   async create(createCuisineDto: CreateCuisineDto): Promise<Cuisine> {
     const cuisine: Cuisine = this.repository.create(createCuisineDto);
-    return this.repository.save(cuisine);
+    const newCuisine = await this.repository.save(cuisine);
+
+    await this.updateRecommenderDataframe();
+
+    return newCuisine;
   }
 
   async findAll(query: PaginateQuery): Promise<Paginated<Cuisine>> {
@@ -43,10 +61,14 @@ export class CuisineService {
 
   async update(id: string, updateCuisineDto: UpdateCuisineDto) {
     try {
-      return this.repository.save({
+      const updatedCuisine = await this.repository.save({
         id,
         ...updateCuisineDto,
       });
+
+      await this.updateRecommenderDataframe();
+
+      return updatedCuisine;
     } catch (error) {
       throw error;
     }
@@ -55,7 +77,11 @@ export class CuisineService {
   async remove(id: string) {
     try {
       const cuisine: Cuisine = await this.findOneById(id);
-      return this.repository.softRemove(cuisine);
+      const removedCuisine = await this.repository.softRemove(cuisine);
+
+      await this.updateRecommenderDataframe();
+
+      return removedCuisine;
     } catch (error) {
       throw error;
     }
@@ -73,7 +99,13 @@ export class CuisineService {
         },
       });
 
-      return this.repository.softRemove(cuisineArray);
+      const removedCuisineArray = await this.repository.softRemove(
+        cuisineArray,
+      );
+
+      await this.updateRecommenderDataframe();
+
+      return removedCuisineArray;
     } catch (error) {
       throw error;
     }

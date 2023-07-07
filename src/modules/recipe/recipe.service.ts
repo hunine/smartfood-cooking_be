@@ -34,6 +34,8 @@ import { HttpHelper } from 'src/helpers';
 import { RECOMMENDER_SERVICE } from '@config/env';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
 import { REDIS_PREFIX } from 'src/common/constants/redis';
+import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
+import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
 
 @Injectable()
 export class RecipeService {
@@ -48,6 +50,15 @@ export class RecipeService {
     private readonly ingredientService: IngredientService,
     private readonly cookingHistoryService: CookingHistoryService,
   ) {}
+
+  private async updateRecommenderDataframe() {
+    const result: any = await RecommenderServiceHelper.training();
+
+    if (result.data.status === RECOMMENDER_SERVICE_STATUS.SUCCESS) {
+      const key = `${REDIS_PREFIX.RECOMMENDER_RECIPES}*`;
+      await this.cacheManager.del(key);
+    }
+  }
 
   async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     let resultRecipe: Recipe;
@@ -94,6 +105,8 @@ export class RecipeService {
 
       await manager.save(steps);
     });
+
+    await this.updateRecommenderDataframe();
 
     return resultRecipe;
   }
@@ -374,6 +387,8 @@ export class RecipeService {
         });
       });
 
+      await this.updateRecommenderDataframe();
+
       return this.findOneById(id);
     } catch (error) {
       throw error;
@@ -383,7 +398,11 @@ export class RecipeService {
   async remove(id: string) {
     try {
       const recipe: Recipe = await this.findOneById(id);
-      return this.repository.softRemove(recipe);
+      const removedRecipe = await this.repository.softRemove(recipe);
+
+      await this.updateRecommenderDataframe();
+
+      return removedRecipe;
     } catch (error) {
       throw error;
     }
@@ -400,8 +419,11 @@ export class RecipeService {
           id: In(ids),
         },
       });
+      const removedRecipes = await this.repository.softRemove(recipes);
 
-      return this.repository.softRemove(recipes);
+      await this.updateRecommenderDataframe();
+
+      return removedRecipes;
     } catch (error) {
       throw error;
     }

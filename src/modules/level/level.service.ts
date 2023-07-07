@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { Level } from './entities/level.entity';
@@ -11,17 +11,36 @@ import {
   Paginated,
   paginate,
 } from 'nestjs-paginate';
+import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
+import { REDIS_PREFIX } from 'src/common/constants/redis';
+import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class LevelService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
     @Inject(LevelProvider.REPOSITORY)
     private readonly repository: Repository<Level>,
   ) {}
 
+  private async updateRecommenderDataframe() {
+    const result: any = await RecommenderServiceHelper.training();
+
+    if (result.data.status === RECOMMENDER_SERVICE_STATUS.SUCCESS) {
+      const key = `${REDIS_PREFIX.RECOMMENDER_RECIPES}*`;
+      await this.cacheManager.del(key);
+    }
+  }
+
   async create(createLevelDto: CreateLevelDto): Promise<Level> {
     const level: Level = this.repository.create(createLevelDto);
-    return this.repository.save(level);
+    const newLevel = await this.repository.save(level);
+
+    await this.updateRecommenderDataframe();
+
+    return newLevel;
   }
 
   async findAll(query: PaginateQuery): Promise<Paginated<Level>> {
@@ -47,10 +66,14 @@ export class LevelService {
 
   async update(id: string, updateLevelDto: UpdateLevelDto): Promise<Level> {
     try {
-      return this.repository.save({
+      const updatedLevel = await this.repository.save({
         id,
         ...updateLevelDto,
       });
+
+      await this.updateRecommenderDataframe();
+
+      return updatedLevel;
     } catch (error) {
       throw error;
     }
@@ -59,7 +82,11 @@ export class LevelService {
   async remove(id: string) {
     try {
       const level: Level = await this.findOneById(id);
-      return this.repository.softRemove(level);
+      const removedLevel = await this.repository.softRemove(level);
+
+      await this.updateRecommenderDataframe();
+
+      return removedLevel;
     } catch (error) {
       throw error;
     }
@@ -76,8 +103,11 @@ export class LevelService {
           id: In(ids),
         },
       });
+      const removedLevels = await this.repository.softRemove(levels);
 
-      return this.repository.softRemove(levels);
+      await this.updateRecommenderDataframe();
+
+      return removedLevels;
     } catch (error) {
       throw error;
     }
