@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities';
@@ -13,13 +13,28 @@ import {
 } from 'nestjs-paginate';
 import { translateHelper } from 'src/helpers';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
+import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
+import { REDIS_PREFIX } from 'src/common/constants/redis';
+import { Cache } from 'cache-manager';
+import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
 
 @Injectable()
 export class IngredientService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
     @Inject(IngredientProvider.REPOSITORY)
     private readonly repository: Repository<Ingredient>,
   ) {}
+
+  private async updateRecommenderDataframe() {
+    const result: any = await RecommenderServiceHelper.training();
+
+    if (result.data.status === RECOMMENDER_SERVICE_STATUS.SUCCESS) {
+      const key = `${REDIS_PREFIX.RECOMMENDER_RECIPES}*`;
+      await this.cacheManager.del(key);
+    }
+  }
 
   async create(createIngredientDto: CreateIngredientDto): Promise<Ingredient> {
     const slug = await translateHelper.translate(createIngredientDto.name);
@@ -56,10 +71,14 @@ export class IngredientService {
 
   async update(id: string, updateIngredientDto: UpdateIngredientDto) {
     try {
-      return this.repository.save({
+      const data = await this.repository.save({
         id,
         ...updateIngredientDto,
       });
+
+      await this.updateRecommenderDataframe();
+
+      return data;
     } catch (error) {
       throw error;
     }
@@ -68,7 +87,11 @@ export class IngredientService {
   async remove(id: string) {
     try {
       const ingredient: Ingredient = await this.findOneById(id);
-      return this.repository.softRemove(ingredient);
+      const removedIngredient = await this.repository.softRemove(ingredient);
+
+      await this.updateRecommenderDataframe();
+
+      return removedIngredient;
     } catch (error) {
       throw error;
     }
@@ -85,8 +108,11 @@ export class IngredientService {
           id: In(ids),
         },
       });
+      const removedIngredients = await this.repository.softRemove(ingredients);
 
-      return this.repository.softRemove(ingredients);
+      await this.updateRecommenderDataframe();
+
+      return removedIngredients;
     } catch (error) {
       throw error;
     }
