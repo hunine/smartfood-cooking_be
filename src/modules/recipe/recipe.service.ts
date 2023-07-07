@@ -1,5 +1,10 @@
 import _ from 'lodash';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
@@ -15,6 +20,7 @@ import { Cuisine } from 'src/modules/cuisine/entities';
 import { RecipeProvider } from './recipe.provider';
 import { Quantification } from '@app/quantification/entities';
 import { RecipeStep } from '@app/recipe-step/entities';
+import { Cache } from 'cache-manager';
 
 import {
   FilterOperator,
@@ -27,10 +33,13 @@ import {
 import { HttpHelper } from 'src/helpers';
 import { RECOMMENDER_SERVICE } from '@config/env';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
+import { REDIS_PREFIX } from 'src/common/constants/redis';
 
 @Injectable()
 export class RecipeService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
     @Inject(RecipeProvider.REPOSITORY)
     private readonly repository: Repository<Recipe>,
     private readonly levelService: LevelService,
@@ -400,50 +409,55 @@ export class RecipeService {
 
   async findRecommendedRecipes(userEmail) {
     try {
-      const cookingHistory = await this.cookingHistoryService.findHistoryByUser(
-        userEmail,
-      );
-      const recipeIds = cookingHistory.map((item) => item.recipeId);
-      const options: FindManyOptions<Recipe> = {
-        select: ['name'],
-      };
+      const key = `${REDIS_PREFIX.RECOMMENDER_RECIPES}${userEmail}`;
+      const recommendRecipes = await this.cacheManager.get(key);
 
-      if (recipeIds.length) {
-        options.where = {
-          id: In(recipeIds),
-        };
+      if (recommendRecipes) {
+        return recommendRecipes;
       } else {
-        options.take = 5;
-        options.skip = Math.floor(
-          Math.random() * (await this.repository.count()),
-        );
-      }
-
-      const recipes = await this.repository.find(options);
-
-      const data = {
-        user_recipes: recipes.map((recipe) => recipe.name),
-      };
-      const url = `${RECOMMENDER_SERVICE.URL}/recommend`;
-      const recommendResult: any = await HttpHelper.post(url, data, null, {
-        headers: {
-          authorization: RECOMMENDER_SERVICE.API_KEY,
-        },
-      });
-
-      const recommendRecipes = recommendResult.data.map((recipeName) => {
-        return this.repository.findOne({
-          where: { name: recipeName },
-          relations: {
-            level: true,
-            category: true,
-            cuisine: true,
-            media: true,
+        const cookingHistory =
+          await this.cookingHistoryService.findHistoryByUser(userEmail);
+        const recipeIds = cookingHistory.map((item) => item.recipeId);
+        const options: FindManyOptions<Recipe> = {
+          select: ['name'],
+        };
+        if (recipeIds.length) {
+          options.where = {
+            id: In(recipeIds),
+          };
+        } else {
+          options.take = 5;
+          options.skip = Math.floor(
+            Math.random() * (await this.repository.count()),
+          );
+        }
+        const recipes = await this.repository.find(options);
+        const data = {
+          user_recipes: recipes.map((recipe) => recipe.name),
+        };
+        const url = `${RECOMMENDER_SERVICE.URL}/recommend`;
+        const recommendResult: any = await HttpHelper.post(url, data, null, {
+          headers: {
+            authorization: RECOMMENDER_SERVICE.API_KEY,
           },
         });
-      });
+        const promiseArray = recommendResult.data.map((recipeName) => {
+          return this.repository.findOne({
+            where: { name: recipeName },
+            relations: {
+              level: true,
+              category: true,
+              cuisine: true,
+              media: true,
+            },
+          });
+        });
 
-      return Promise.all(recommendRecipes);
+        const recommendRecipes = await Promise.all(promiseArray);
+        await this.cacheManager.set(key, recommendRecipes);
+
+        return recommendRecipes;
+      }
     } catch (error) {
       throw error;
     }
