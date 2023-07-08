@@ -67,6 +67,7 @@ export class RecipeController {
   }
 
   @Get('count')
+  @AuthorizeGuard([Role.ADMIN])
   async countAll(@Res() response) {
     try {
       const data = await this.recipeService.countAll();

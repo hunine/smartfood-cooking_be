@@ -6,6 +6,8 @@ import {
   ResponseSuccess,
 } from 'src/core/responses/response-exception';
 import { RESPONSE_MESSAGES } from 'src/common/constants';
+import { AuthorizeGuard } from '@app/auth/decorators/auth.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @ApiTags('cooking-histories')
 @Controller('cooking-histories')
@@ -13,6 +15,7 @@ export class CookingHistoryController {
   constructor(private readonly cookingHistoryService: CookingHistoryService) {}
 
   @Get('recipes-statistics')
+  @AuthorizeGuard([Role.ADMIN])
   async getRecipesStatistics(
     @Query('from') from: string,
     @Query('to') to: string,
