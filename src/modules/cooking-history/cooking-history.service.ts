@@ -49,7 +49,7 @@ export class CookingHistoryService {
       .createQueryBuilder('cookingHistory')
       .select('cookingHistory.date', 'date')
       .addSelect('COUNT(cookingHistory.date)', 'count')
-      .where('cookingHistory.createdAt BETWEEN :from AND :to', { from, to })
+      .where('cookingHistory.date BETWEEN :from AND :to', { from, to })
       .groupBy('cookingHistory.date')
       .orderBy('date', 'DESC')
       .getRawMany();

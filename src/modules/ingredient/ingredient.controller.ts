@@ -28,6 +28,7 @@ export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
   @Get('count')
+  @AuthorizeGuard([Role.ADMIN])
   async countAll(@Res() response) {
     try {
       const data = await this.ingredientService.countAll();
