@@ -115,6 +115,7 @@ export class DiaryService {
             name: item.exercise.name,
             calo: item.exercise.calo,
             minute: item.exercise.minute,
+            practiceDuration: item.practiceDuration,
           });
         });
 
@@ -207,8 +208,8 @@ export class DiaryService {
     createDiaryExerciseDto: CreateDiaryExerciseDto,
   ) {
     try {
-      const { exerciseIds } = createDiaryExerciseDto;
-      const exercises = await this.exerciseService.findManyByIds(exerciseIds);
+      const { exerciseId, practiceDuration } = createDiaryExerciseDto;
+      const exercise = await this.exerciseService.findOneById(exerciseId);
 
       let diary = await this.findOneDiary(userId, date);
 
@@ -216,15 +217,29 @@ export class DiaryService {
         diary = await this.createNewDiary(userId, date);
       }
 
-      const promiseArray = exercises.map(async (exercise) => {
-        const exercisesDiaries = new ExercisesDiaries();
-        exercisesDiaries.exercise = exercise;
-        exercisesDiaries.diary = diary;
+      const exercisesDiaries = await this.repository.manager.findOne(
+        ExercisesDiaries,
+        {
+          where: {
+            exercise: {
+              id: exercise.id,
+            },
+          },
+        },
+      );
+
+      if (!exercisesDiaries) {
+        const newExercisesDiaries = new ExercisesDiaries();
+        newExercisesDiaries.exercise = exercise;
+        newExercisesDiaries.diary = diary;
+        newExercisesDiaries.practiceDuration = practiceDuration;
+
+        await this.repository.manager.save(newExercisesDiaries);
+      } else {
+        exercisesDiaries.practiceDuration += practiceDuration;
 
         await this.repository.manager.save(exercisesDiaries);
-      });
-
-      await Promise.all(promiseArray);
+      }
 
       return this.getDiary(userId, date);
     } catch (error) {

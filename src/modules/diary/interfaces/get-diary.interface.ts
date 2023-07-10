@@ -14,6 +14,7 @@ interface Exercise {
   name: string;
   calo: number;
   minute: number;
+  practiceDuration: number;
 }
 
 export interface IGetDiaryInterface {
