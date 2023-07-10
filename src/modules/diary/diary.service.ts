@@ -13,6 +13,9 @@ import { IGetDiaryInterface } from './interfaces/get-diary.interface';
 import { Meal } from '@app/meal/entities';
 import { UserService } from '@app/user/user.service';
 import { MealService } from '@app/meal/meal.service';
+import { CreateDiaryExerciseDto } from './dto/create-diary-exercise.dto';
+import { ExerciseService } from '@app/exercise/exercise.service';
+import { ExercisesDiaries } from '@app/exercise/entities/exercises-diaries.entity';
 
 @Injectable()
 export class DiaryService {
@@ -20,6 +23,7 @@ export class DiaryService {
     @Inject(DiaryProvider.REPOSITORY)
     private readonly repository: Repository<Diary>,
     private readonly mealRepository: MealService,
+    private readonly exerciseService: ExerciseService,
     @Inject(forwardRef(() => RecipeService))
     private readonly recipeService: RecipeService,
     @Inject(forwardRef(() => UserService))
@@ -64,6 +68,7 @@ export class DiaryService {
         breakfast: [],
         lunch: [],
         dinner: [],
+        exercises: [],
       };
 
       const isEnoughStat = await this.userService.checkUserStat(userId);
@@ -79,7 +84,14 @@ export class DiaryService {
           },
           date,
         },
-        relations: ['user', 'meals', 'meals.recipe', 'meals.recipe.media'],
+        relations: [
+          'user',
+          'meals',
+          'meals.recipe',
+          'meals.recipe.media',
+          'exercisesDiaries',
+          'exercisesDiaries.exercise',
+        ],
       });
 
       if (diary) {
@@ -94,6 +106,15 @@ export class DiaryService {
             carbs: item.carbs || 0,
             protein: item.protein || 0,
             fat: item.fat || 0,
+          });
+        });
+
+        diary.exercisesDiaries.forEach((item) => {
+          returnData.exercises.push({
+            id: item.id,
+            name: item.exercise.name,
+            calo: item.exercise.calo,
+            minute: item.exercise.minute,
           });
         });
 
@@ -171,6 +192,37 @@ export class DiaryService {
     }
   }
 
+  async createDiaryExercise(
+    userId: string,
+    date: string,
+    createDiaryExerciseDto: CreateDiaryExerciseDto,
+  ) {
+    try {
+      const { exerciseIds } = createDiaryExerciseDto;
+      const exercises = await this.exerciseService.findManyByIds(exerciseIds);
+
+      let diary = await this.findOneDiary(userId, date);
+
+      if (!diary) {
+        diary = await this.createNewDiary(userId, date);
+      }
+
+      const promiseArray = exercises.map(async (exercise) => {
+        const exercisesDiaries = new ExercisesDiaries();
+        exercisesDiaries.exercise = exercise;
+        exercisesDiaries.diary = diary;
+
+        await this.repository.manager.save(exercisesDiaries);
+      });
+
+      await Promise.all(promiseArray);
+
+      return this.getDiary(userId, date);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deleteRecipeInDiary(userId: string, mealId: string) {
     try {
       await this.repository.manager.transaction(async (manager) => {
@@ -190,6 +242,31 @@ export class DiaryService {
         }
 
         await manager.delete(Meal, mealId);
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteExerciseInDiary(userId: string, exerciseId: string) {
+    try {
+      await this.repository.manager.transaction(async (manager) => {
+        const exercise = await manager.findOne(ExercisesDiaries, {
+          where: {
+            id: exerciseId,
+            diary: {
+              user: {
+                id: userId,
+              },
+            },
+          },
+        });
+
+        if (!exercise) {
+          throw new NotFoundException('Exercise not found');
+        }
+
+        await manager.delete(ExercisesDiaries, exerciseId);
       });
     } catch (error) {
       throw error;

@@ -1,3 +1,4 @@
+import { ExercisesDiaries } from '@app/exercise/entities/exercises-diaries.entity';
 import { Meal } from '@app/meal/entities';
 import { User } from '@app/user/entities';
 import { BaseEntity } from '@base/base.entity';
@@ -36,4 +37,7 @@ export class Diary extends BaseEntity {
 
   @OneToMany(() => Meal, (meal) => meal.diary)
   meals: Meal[];
+
+  @OneToMany(() => ExercisesDiaries, (exerciseDiaries) => exerciseDiaries.diary)
+  exercisesDiaries: ExercisesDiaries[];
 }
