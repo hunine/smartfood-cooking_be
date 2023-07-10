@@ -107,15 +107,25 @@ export class UserService {
         );
 
         if (diary) {
-          diary.totalCalories = nutrition.getTDEE();
+          const { calories, carbs, protein, fat } = nutrition.getNutrition();
+          diary.totalCalories = calories;
+          diary.carbs = carbs;
+          diary.protein = protein;
+          diary.fat = fat;
+
           await manager.save(Diary, diary);
         } else {
+          const { calories, carbs, protein, fat } = nutrition.getNutrition();
+
           const newDiary = manager.create(Diary, {
+            fat,
+            carbs,
+            protein,
             user: {
               id: newUser.id,
             },
             date: DateTimeHelper.getTodayString(),
-            totalCalories: nutrition.getTDEE(),
+            totalCalories: calories,
           });
           await manager.save(Diary, newDiary);
         }
@@ -197,7 +207,7 @@ export class UserService {
         practiceMode as PracticeModeLabel,
       );
 
-      return nutrition.getTDEE();
+      return nutrition.getNutrition();
     } catch (error) {
       throw error;
     }
