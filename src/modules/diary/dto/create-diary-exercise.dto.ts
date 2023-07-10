@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsPositive, IsString } from 'class-validator';
 
 export class CreateDiaryExerciseDto {
   @ApiProperty()
-  @IsArray()
+  @IsString()
   @IsNotEmpty()
-  public exerciseIds!: string[];
+  public exerciseId!: string;
+
+  @ApiProperty()
+  @IsPositive()
+  @IsNotEmpty()
+  public practiceDuration: number;
 }

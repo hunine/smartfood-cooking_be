@@ -53,4 +53,12 @@ export class ExerciseService {
       },
     });
   }
+
+  async findOneById(id: string): Promise<Exercise> {
+    return this.repository.findOne({
+      where: {
+        id,
+      },
+    });
+  }
 }
