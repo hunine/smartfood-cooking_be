@@ -29,7 +29,15 @@ export class MealService {
           id: In(ids),
         },
         relations: ['recipe', 'recipe.media', 'diary'],
-        select: ['id', 'typeOfMeal', 'recipe'],
+        select: [
+          'id',
+          'typeOfMeal',
+          'kcal',
+          'fat',
+          'carbs',
+          'protein',
+          'recipe',
+        ],
       });
     } catch (error) {
       throw error;

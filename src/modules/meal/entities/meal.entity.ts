@@ -23,6 +23,18 @@ export class Meal extends BaseEntity {
   })
   public typeOfMeal: TypeOfMeal;
 
+  @Column({ type: 'float', default: 0 })
+  public kcal: number;
+
+  @Column({ type: 'float', default: 0 })
+  public carbs: number;
+
+  @Column({ type: 'float', default: 0 })
+  public protein: number;
+
+  @Column({ type: 'float', default: 0 })
+  public fat: number;
+
   @ManyToOne(() => Diary, (diary) => diary.meals)
   @JoinColumn({ name: 'diary_id' })
   diary: Diary;

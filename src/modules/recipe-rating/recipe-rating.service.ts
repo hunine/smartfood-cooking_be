@@ -54,8 +54,6 @@ export class RecipeRatingService {
           },
         });
 
-        console.log(recipeRating);
-
         await manager.save(Recipe, {
           id: recipeId,
           rating: recipeRating,

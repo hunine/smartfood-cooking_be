@@ -1,3 +1,8 @@
+import {
+  CALORIES_PER_CARBS,
+  CALORIES_PER_FAT,
+  CALORIES_PER_PROTEIN,
+} from 'src/common/constants';
 import { Gender } from 'src/common/enums/gender.enum';
 import {
   PracticeMode,
@@ -21,7 +26,7 @@ export class NutritionHelper {
     this.#practiceIndex = PracticeMode[practiceMode];
   }
 
-  getBMR() {
+  private getBMR() {
     if (this.#gender === Gender.MALE) {
       this.#bmr =
         13.397 * this.#weight +
@@ -39,9 +44,44 @@ export class NutritionHelper {
     return this.#bmr;
   }
 
-  getTDEE() {
+  private getCarbs(calories: number) {
+    return parseFloat(((0.35 * calories) / CALORIES_PER_CARBS).toFixed(2));
+  }
+
+  private getProtein(calories: number) {
+    return parseFloat(((0.3 * calories) / CALORIES_PER_PROTEIN).toFixed(2));
+  }
+
+  private getFat(calories: number) {
+    return parseFloat(((0.35 * calories) / CALORIES_PER_FAT).toFixed(2));
+  }
+
+  private getTotalCalories() {
     this.#tdee = this.getBMR() * this.#practiceIndex;
 
     return parseFloat(this.#tdee.toFixed(2));
+  }
+
+  getNutrition() {
+    const calories = this.getTotalCalories();
+
+    return {
+      calories,
+      carbs: this.getCarbs(calories),
+      protein: this.getProtein(calories),
+      fat: this.getFat(calories),
+    };
+  }
+
+  static calculateNutritionByWeight(
+    { kcal, carbs, protein, fat },
+    weight: number,
+  ) {
+    return {
+      kcal: parseFloat(((kcal * weight) / 100).toFixed(2)),
+      carbs: parseFloat(((carbs * weight) / 100).toFixed(2)),
+      protein: parseFloat(((protein * weight) / 100).toFixed(2)),
+      fat: parseFloat(((fat * weight) / 100).toFixed(2)),
+    };
   }
 }

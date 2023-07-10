@@ -27,11 +27,15 @@ export class DiaryService {
   ) {}
 
   private async createNewDiary(userId: string, date: string) {
-    const totalCalories = await this.userService.caculatorTotalCalories(userId);
+    const { calories, carbs, protein, fat } =
+      await this.userService.caculatorTotalCalories(userId);
 
     return this.repository.save({
       date,
-      totalCalories,
+      fat,
+      carbs,
+      protein,
+      totalCalories: calories,
       user: {
         id: userId,
       },
@@ -77,6 +81,10 @@ export class DiaryService {
           returnData[item.typeOfMeal].push({
             id: item.id,
             recipe: item.recipe,
+            kcal: item.kcal || 0,
+            carbs: item.carbs || 0,
+            protein: item.protein || 0,
+            fat: item.fat || 0,
           });
         });
 
@@ -120,19 +128,28 @@ export class DiaryService {
       let resultIds = [];
 
       await this.repository.manager.transaction(async (manager) => {
-        const meals = recipes.map((recipe) => ({
-          recipe: {
-            id: recipe.id,
-          },
-          diary: {
-            id: diary.id,
-          },
-          typeOfMeal,
-        }));
+        const promiseArray = recipes.map(async (recipe) => {
+          const nutrition = await this.recipeService.calculateRecipeNutrition(
+            recipe.id,
+          );
 
-        const test = await manager.save(Meal, meals);
+          return {
+            recipe: {
+              id: recipe.id,
+            },
+            diary: {
+              id: diary.id,
+            },
+            typeOfMeal,
+            ...nutrition,
+          };
+        });
 
-        resultIds = test.map((item) => item.id);
+        const meals = await Promise.all(promiseArray);
+
+        const newMeals = await manager.save(Meal, meals);
+
+        resultIds = newMeals.map((item) => item.id);
       });
 
       return this.mealRepository.findManyByIds(resultIds);

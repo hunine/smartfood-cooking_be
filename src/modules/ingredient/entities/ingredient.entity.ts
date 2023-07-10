@@ -9,6 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { AverageWeight } from './average_weight.entity';
 
 @Entity('ingredients')
 export class Ingredient extends BaseEntity {
@@ -21,11 +22,26 @@ export class Ingredient extends BaseEntity {
   @Column({ type: 'varchar' })
   public slug?: string;
 
+  @Column({ type: 'float', default: 0 })
+  public kcal: number;
+
+  @Column({ type: 'float', default: 0 })
+  public carbs: number;
+
+  @Column({ type: 'float', default: 0 })
+  public protein: number;
+
+  @Column({ type: 'float', default: 0 })
+  public fat: number;
+
   @OneToMany(
     () => Quantification,
     (quantification) => quantification.ingredient,
   )
   quantification: Quantification[];
+
+  @OneToMany(() => AverageWeight, (averageWeight) => averageWeight.ingredient)
+  listAverageWeight: AverageWeight[];
 
   @ManyToMany(() => Media, (media) => media.ingredient)
   @JoinTable({ name: 'ingredients_media' })

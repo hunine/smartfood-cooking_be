@@ -30,12 +30,13 @@ import {
   Paginated,
   paginate,
 } from 'nestjs-paginate';
-import { HttpHelper } from 'src/helpers';
+import { HttpHelper, NutritionHelper } from 'src/helpers';
 import { RECOMMENDER_SERVICE } from '@config/env';
 import { DateTimeHelper } from 'src/helpers/datetime.helper';
 import { REDIS_PREFIX } from 'src/common/constants/redis';
 import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
 import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
+import { CONVERT_GRAM_UNIT } from 'src/common/constants/nutrition';
 
 @Injectable()
 export class RecipeService {
@@ -168,8 +169,8 @@ export class RecipeService {
     });
   }
 
-  async findOneById(id: string): Promise<Recipe> {
-    return this.repository.findOneOrFail({
+  async findOneById(id: string): Promise<any> {
+    const recipe = await this.repository.findOneOrFail({
       select: {
         id: true,
         name: true,
@@ -227,6 +228,10 @@ export class RecipeService {
         },
       },
     });
+
+    const recipeNutrition = await this.calculateRecipeNutrition(recipe.id);
+
+    return { recipe, ...recipeNutrition };
   }
 
   async getRecipeToCook(id: string, userEmail = ''): Promise<Recipe> {
@@ -501,5 +506,78 @@ export class RecipeService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async calculateRecipeNutrition(id: string) {
+    const recipeNutrition = await this.repository.findOneOrFail({
+      select: {
+        id: true,
+        quantification: {
+          id: true,
+          value: true,
+          unit: true,
+          ingredient: {
+            id: true,
+            name: true,
+            fat: true,
+            kcal: true,
+            carbs: true,
+            protein: true,
+          },
+        },
+      },
+      relations: [
+        'quantification',
+        'quantification.ingredient',
+        'quantification.ingredient',
+        'quantification.ingredient.listAverageWeight',
+      ],
+      where: { id },
+    });
+
+    let totalKcal = 0;
+    let totalFat = 0;
+    let totalCarbs = 0;
+    let totalProtein = 0;
+
+    recipeNutrition.quantification.forEach((quantification) => {
+      let data = { kcal: 0, fat: 0, carbs: 0, protein: 0 };
+      let weight = quantification.value;
+
+      if (Object.keys(CONVERT_GRAM_UNIT).includes(quantification.unit)) {
+        weight = CONVERT_GRAM_UNIT[quantification.unit] * quantification.value;
+
+        data = NutritionHelper.calculateNutritionByWeight(
+          quantification.ingredient,
+          weight,
+        );
+      } else {
+        const listAverageWeight = quantification.ingredient.listAverageWeight;
+
+        if (listAverageWeight) {
+          const averageWeight = listAverageWeight.find(
+            (item) => item.unit === quantification.unit,
+          );
+
+          if (averageWeight) {
+            data = NutritionHelper.calculateNutritionByWeight(
+              quantification.ingredient,
+              averageWeight.gram,
+            );
+          }
+        }
+      }
+      totalKcal += data.kcal;
+      totalFat += data.fat;
+      totalCarbs += data.carbs;
+      totalProtein += data.protein;
+    });
+
+    return {
+      kcal: totalKcal,
+      fat: totalFat,
+      carbs: totalCarbs,
+      protein: totalProtein,
+    };
   }
 }

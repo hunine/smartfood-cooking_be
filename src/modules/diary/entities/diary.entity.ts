@@ -21,6 +21,15 @@ export class Diary extends BaseEntity {
   @Column({ name: 'total_calories', type: 'float', default: 0 })
   public totalCalories: number;
 
+  @Column({ name: 'fat', type: 'float', default: 0 })
+  public fat: number;
+
+  @Column({ name: 'carbs', type: 'float', default: 0 })
+  public carbs: number;
+
+  @Column({ name: 'protein', type: 'float', default: 0 })
+  public protein: number;
+
   @ManyToOne(() => User, (user) => user.diaries)
   @JoinColumn({ name: 'user_id' })
   user: User;

@@ -15,7 +15,9 @@ import * as ingredientJsonData from '../data/ingredients.json';
 import * as recipeJsonData from '../data/recipes.json';
 import * as quantificationJsonData from '../data/quantification.json';
 import * as recipeStepJsonData from '../data/recipe_steps.json';
+import * as averageWeightJsonData from '../data/average_weight.json';
 import { Media } from '@app/media/entities';
+import { AverageWeight } from '@app/ingredient/entities/average_weight.entity';
 
 export default class DataSeeder implements Seeder {
   private async seedCategories(dataSource: DataSource): Promise<any> {
@@ -80,6 +82,10 @@ export default class DataSeeder implements Seeder {
       media.url = ingredientsData[i].media;
       ingredient.name = ingredientsData[i].name;
       ingredient.slug = ingredientsData[i].slug;
+      ingredient.kcal = ingredientsData[i].kcal;
+      ingredient.carbs = ingredientsData[i].carbs;
+      ingredient.protein = ingredientsData[i].protein;
+      ingredient.fat = ingredientsData[i].fat;
       ingredient.media = [media];
 
       await dataSource.getRepository(Media).save(media);
@@ -127,6 +133,37 @@ export default class DataSeeder implements Seeder {
     });
 
     return recipeMapping;
+  }
+
+  private async seedAverageWeight(
+    mapping,
+    dataSource: DataSource,
+  ): Promise<any> {
+    const { ingredientMapping } = mapping;
+    const averageWeightArray: AverageWeight[] = [];
+    const averageWeightDataArray: any[] = Array.from(
+      averageWeightJsonData['default'],
+    );
+
+    for (let i = 0; i < averageWeightDataArray.length; i += 1) {
+      const averageWeight = new AverageWeight();
+
+      averageWeight.ingredient =
+        ingredientMapping[averageWeightDataArray[i].ingredient_name];
+      averageWeight.unit = averageWeightDataArray[i].unit;
+      averageWeight.gram = averageWeightDataArray[i].gram;
+
+      averageWeightArray.push(averageWeight);
+
+      if (averageWeightArray.length === 1000) {
+        await dataSource.getRepository(AverageWeight).save(averageWeightArray);
+        averageWeightArray.length = 0;
+      }
+    }
+
+    if (averageWeightArray.length > 0) {
+      await dataSource.getRepository(AverageWeight).save(averageWeightArray);
+    }
   }
 
   private async seedQuantification(
@@ -240,6 +277,8 @@ export default class DataSeeder implements Seeder {
       { recipeMapping, ingredientMapping },
       datasource,
     );
+
+    await this.seedAverageWeight({ ingredientMapping }, datasource);
 
     // RecipeStep
     await this.seedRecipeSteps({ recipeMapping }, datasource);
