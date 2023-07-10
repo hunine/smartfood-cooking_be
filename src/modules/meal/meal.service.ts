@@ -32,6 +32,7 @@ export class MealService {
         select: [
           'id',
           'typeOfMeal',
+          'totalPeople',
           'kcal',
           'fat',
           'carbs',
