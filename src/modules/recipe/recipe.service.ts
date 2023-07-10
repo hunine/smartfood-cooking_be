@@ -112,8 +112,11 @@ export class RecipeService {
     return resultRecipe;
   }
 
-  async findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Recipe>> {
-    return paginate(query, this.repository, {
+  async findAll(
+    @Paginate() query: PaginateQuery,
+    getNutrition: boolean,
+  ): Promise<Paginated<any>> {
+    const data = await paginate(query, this.repository, {
       relations: ['level', 'category', 'cuisine', 'media'],
       sortableColumns: [
         'id',
@@ -159,6 +162,24 @@ export class RecipeService {
         ],
       },
     });
+
+    if (!getNutrition) {
+      return data;
+    }
+
+    const promiseArray = data.data.map(async (recipe) => {
+      const nutrition = await this.calculateRecipeNutrition(recipe.id);
+
+      return {
+        recipe,
+        ...nutrition,
+      };
+    });
+
+    return {
+      ...data,
+      data: await Promise.all(promiseArray),
+    };
   }
 
   async findManyByIds(ids: string[]): Promise<Recipe[]> {
@@ -574,10 +595,10 @@ export class RecipeService {
     });
 
     return {
-      kcal: totalKcal,
-      fat: totalFat,
-      carbs: totalCarbs,
-      protein: totalProtein,
+      kcal: Number(totalKcal.toFixed(2)),
+      fat: Number(totalFat.toFixed(2)),
+      carbs: Number(totalCarbs.toFixed(2)),
+      protein: Number(totalProtein.toFixed(2)),
     };
   }
 }

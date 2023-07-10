@@ -85,8 +85,11 @@ export class RecipeController {
   }
 
   @Get()
-  async findAll(@Paginate() query: PaginateQuery) {
-    return this.recipeService.findAll(query);
+  async findAll(
+    @Paginate() query: PaginateQuery,
+    @Query('getNutrition') getNutrition: boolean,
+  ) {
+    return this.recipeService.findAll(query, getNutrition);
   }
 
   @Get(':id')
