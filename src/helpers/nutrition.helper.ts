@@ -45,21 +45,21 @@ export class NutritionHelper {
   }
 
   private getCarbs(calories: number) {
-    return parseFloat(((0.35 * calories) / CALORIES_PER_CARBS).toFixed(2));
+    return Number(((0.35 * calories) / CALORIES_PER_CARBS).toFixed(2));
   }
 
   private getProtein(calories: number) {
-    return parseFloat(((0.3 * calories) / CALORIES_PER_PROTEIN).toFixed(2));
+    return Number(((0.3 * calories) / CALORIES_PER_PROTEIN).toFixed(2));
   }
 
   private getFat(calories: number) {
-    return parseFloat(((0.35 * calories) / CALORIES_PER_FAT).toFixed(2));
+    return Number(((0.35 * calories) / CALORIES_PER_FAT).toFixed(2));
   }
 
   private getTotalCalories() {
     this.#tdee = this.getBMR() * this.#practiceIndex;
 
-    return parseFloat(this.#tdee.toFixed(2));
+    return Number(this.#tdee.toFixed(2));
   }
 
   getNutrition() {
@@ -78,10 +78,10 @@ export class NutritionHelper {
     weight: number,
   ) {
     return {
-      kcal: parseFloat(((kcal * weight) / 100).toFixed(2)),
-      carbs: parseFloat(((carbs * weight) / 100).toFixed(2)),
-      protein: parseFloat(((protein * weight) / 100).toFixed(2)),
-      fat: parseFloat(((fat * weight) / 100).toFixed(2)),
+      kcal: Number(((kcal * weight) / 100).toFixed(2)),
+      carbs: Number(((carbs * weight) / 100).toFixed(2)),
+      protein: Number(((protein * weight) / 100).toFixed(2)),
+      fat: Number(((fat * weight) / 100).toFixed(2)),
     };
   }
 }
