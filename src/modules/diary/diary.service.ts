@@ -150,8 +150,17 @@ export class DiaryService {
     createDiaryDto: CreateDiaryDto,
   ) {
     try {
-      const { recipeIds, typeOfMeal, totalPeople } = createDiaryDto;
+      const { dishes, typeOfMeal } = createDiaryDto;
+      const recipeIds = [];
+      const totalPeopleMapping = {};
+
+      dishes.forEach((item) => {
+        totalPeopleMapping[item.recipeId] = item.totalPeople;
+        recipeIds.push(item.recipeId);
+      });
+
       const recipes = await this.recipeService.findManyByIds(recipeIds);
+
       let diary = await this.findOneDiary(userId, date);
 
       if (!diary) {
@@ -174,7 +183,7 @@ export class DiaryService {
               id: diary.id,
             },
             typeOfMeal,
-            totalPeople,
+            totalPeople: totalPeopleMapping[recipe.id],
             ...nutrition,
           };
         });
