@@ -16,8 +16,10 @@ import * as recipeJsonData from '../data/recipes.json';
 import * as quantificationJsonData from '../data/quantification.json';
 import * as recipeStepJsonData from '../data/recipe_steps.json';
 import * as averageWeightJsonData from '../data/average_weight.json';
+import * as exerciseJsonData from '../data/exercises.json';
 import { Media } from '@app/media/entities';
 import { AverageWeight } from '@app/ingredient/entities/average_weight.entity';
+import { Exercise } from '@app/exercise/entities/exercise.entity';
 
 export default class DataSeeder implements Seeder {
   private async seedCategories(dataSource: DataSource): Promise<any> {
@@ -35,6 +37,15 @@ export default class DataSeeder implements Seeder {
     });
 
     return categoryMapping;
+  }
+
+  private async seedExercises(dataSource: DataSource): Promise<any> {
+    await dataSource
+      .createQueryBuilder()
+      .insert()
+      .into(Exercise)
+      .values(Array.from(exerciseJsonData['default']))
+      .execute();
   }
 
   private async seedCuisine(dataSource: DataSource): Promise<any> {
@@ -254,6 +265,9 @@ export default class DataSeeder implements Seeder {
   }
 
   public async run(factory: Factory, datasource: DataSource): Promise<any> {
+    // Exercise
+    await this.seedExercises(datasource);
+
     // Category
     const categoryMapping = await this.seedCategories(datasource);
 
@@ -278,6 +292,7 @@ export default class DataSeeder implements Seeder {
       datasource,
     );
 
+    // AverageWeight
     await this.seedAverageWeight({ ingredientMapping }, datasource);
 
     // RecipeStep

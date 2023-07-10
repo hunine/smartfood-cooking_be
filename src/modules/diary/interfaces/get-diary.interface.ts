@@ -9,6 +9,13 @@ interface Meal {
   fat: number;
 }
 
+interface Exercise {
+  id: string;
+  name: string;
+  calo: number;
+  minute: number;
+}
+
 export interface IGetDiaryInterface {
   date: string;
   totalCalories: number;
@@ -18,4 +25,5 @@ export interface IGetDiaryInterface {
   breakfast?: Meal[];
   lunch?: Meal[];
   dinner?: Meal[];
+  exercises?: Exercise[];
 }

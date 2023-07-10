@@ -16,6 +16,7 @@ import { RecipeRatingModule } from './modules/recipe-rating/recipe-rating.module
 import { DiaryModule } from './modules/diary/diary.module';
 import { MealModule } from './modules/meal/meal.module';
 import { REDIS_CONFIG } from '@config/env';
+import { ExerciseModule } from './modules/exercise/exercise.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Global()
@@ -46,6 +47,7 @@ import * as redisStore from 'cache-manager-redis-store';
     UserModule,
     CookingHistoryModule,
     MealModule,
+    ExerciseModule,
   ],
   controllers: [],
   providers: [],
