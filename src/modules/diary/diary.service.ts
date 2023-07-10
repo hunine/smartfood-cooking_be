@@ -58,10 +58,19 @@ export class DiaryService {
       const returnData: IGetDiaryInterface = {
         date,
         totalCalories: 0,
+        fat: 0,
+        carbs: 0,
+        protein: 0,
         breakfast: [],
         lunch: [],
         dinner: [],
       };
+
+      const isEnoughStat = await this.userService.checkUserStat(userId);
+
+      if (!isEnoughStat) {
+        throw new NotFoundException('Please update your profile');
+      }
 
       const diary = await this.repository.findOne({
         where: {
@@ -89,6 +98,9 @@ export class DiaryService {
         });
 
         returnData.totalCalories = diary.totalCalories;
+        returnData.fat = diary.fat;
+        returnData.protein = diary.protein;
+        returnData.carbs = diary.carbs;
       } else {
         const recentDiary = await this.repository.findOne({
           where: {
@@ -117,7 +129,7 @@ export class DiaryService {
     createDiaryDto: CreateDiaryDto,
   ) {
     try {
-      const { recipeIds, typeOfMeal } = createDiaryDto;
+      const { recipeIds, typeOfMeal, totalPeople } = createDiaryDto;
       const recipes = await this.recipeService.findManyByIds(recipeIds);
       let diary = await this.findOneDiary(userId, date);
 
@@ -141,6 +153,7 @@ export class DiaryService {
               id: diary.id,
             },
             typeOfMeal,
+            totalPeople,
             ...nutrition,
           };
         });

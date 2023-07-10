@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { UserProvider } from './user.provider';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { User } from './entities';
@@ -199,15 +205,40 @@ export class UserService {
         },
       });
       const { height, weight, age, gender, practiceMode } = user;
-      const nutrition = new NutritionHelper(
-        height,
-        weight,
-        age,
-        gender,
-        practiceMode as PracticeModeLabel,
-      );
 
-      return nutrition.getNutrition();
+      if (height && weight && age && gender && practiceMode) {
+        const nutrition = new NutritionHelper(
+          height,
+          weight,
+          age,
+          gender,
+          practiceMode as PracticeModeLabel,
+        );
+
+        return nutrition.getNutrition();
+      }
+
+      throw new BadRequestException('User info is not enough');
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async checkUserStat(userId: string) {
+    try {
+      const user = await this.repository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      const { height, weight, age, gender, practiceMode } = user;
+
+      if (height && weight && age && gender && practiceMode) {
+        return true;
+      }
+
+      throw new BadRequestException('User info is not enough');
     } catch (error) {
       throw error;
     }

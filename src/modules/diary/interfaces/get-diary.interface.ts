@@ -12,6 +12,9 @@ interface Meal {
 export interface IGetDiaryInterface {
   date: string;
   totalCalories: number;
+  fat: number;
+  carbs: number;
+  protein: number;
   breakfast?: Meal[];
   lunch?: Meal[];
   dinner?: Meal[];
