@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Module, forwardRef } from '@nestjs/common';
 import { CuisineService } from './cuisine.service';
 import { CuisineController } from './cuisine.controller';
 import { DatabaseModule } from '@app/base/database/database.module';
@@ -6,6 +6,7 @@ import { cuisineProvider } from './cuisine.provider';
 import { REDIS_CONFIG } from '@config/env';
 import { BullModule } from '@nestjs/bull';
 import * as redisStore from 'cache-manager-redis-store';
+import { RecipeModule } from '@app/recipe/recipe.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import * as redisStore from 'cache-manager-redis-store';
       name: 'email',
     }),
     DatabaseModule,
+    forwardRef(() => RecipeModule),
   ],
   controllers: [CuisineController],
   providers: [CuisineService, ...cuisineProvider],

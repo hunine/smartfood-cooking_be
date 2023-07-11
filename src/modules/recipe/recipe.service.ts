@@ -37,6 +37,7 @@ import { REDIS_PREFIX } from 'src/common/constants/redis';
 import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
 import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
 import { CONVERT_GRAM_UNIT } from 'src/common/constants/nutrition';
+import { Meal } from '@app/meal/entities';
 
 @Injectable()
 export class RecipeService {
@@ -142,6 +143,7 @@ export class RecipeService {
         'cuisine.name',
         'media.id',
         'media.url',
+        'deletedAt',
       ],
       filterableColumns: {
         name: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
@@ -231,6 +233,7 @@ export class RecipeService {
             url: true,
           },
         },
+        deletedAt: true,
       },
       relations: [
         'level',
@@ -423,8 +426,25 @@ export class RecipeService {
 
   async remove(id: string) {
     try {
-      const recipe: Recipe = await this.findOneById(id);
-      const removedRecipe = await this.repository.softRemove(recipe);
+      let removedRecipe: Recipe;
+
+      await this.repository.manager.transaction(async (manager) => {
+        const recipe: Recipe = await manager.findOneOrFail(Recipe, {
+          where: {
+            id,
+          },
+        });
+        const meals: Meal[] = await manager.find(Meal, {
+          where: {
+            recipe: {
+              id: recipe.id,
+            },
+          },
+        });
+
+        await manager.softRemove(Meal, meals);
+        removedRecipe = await manager.softRemove(Recipe, recipe);
+      });
 
       await this.updateRecommenderDataframe();
 
@@ -440,12 +460,25 @@ export class RecipeService {
     }
 
     try {
-      const recipes: Recipe[] = await this.repository.find({
-        where: {
-          id: In(ids),
-        },
+      let removedRecipes: Recipe[] = [];
+
+      await this.repository.manager.transaction(async (manager) => {
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            id: In(ids),
+          },
+        });
+        const meals: Meal[] = await manager.find(Meal, {
+          where: {
+            recipe: {
+              id: In(ids),
+            },
+          },
+        });
+
+        await manager.softRemove(Meal, meals);
+        removedRecipes = await manager.softRemove(Recipe, recipes);
       });
-      const removedRecipes = await this.repository.softRemove(recipes);
 
       await this.updateRecommenderDataframe();
 

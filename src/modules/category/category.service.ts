@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { In, Repository } from 'typeorm';
@@ -14,6 +14,8 @@ import {
 import { Cache } from 'cache-manager';
 import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
 import { RECOMMENDER_SERVICE_STATUS, REDIS_PREFIX } from 'src/common/constants';
+import { RecipeService } from '@app/recipe/recipe.service';
+import { Recipe } from '@app/recipe/entities';
 
 @Injectable()
 export class CategoryService {
@@ -22,6 +24,8 @@ export class CategoryService {
     private cacheManager: Cache,
     @Inject(CategoryProvider.REPOSITORY)
     private readonly repository: Repository<Category>,
+    @Inject(forwardRef(() => RecipeService))
+    private readonly recipeService: RecipeService,
   ) {}
 
   private async updateRecommenderDataframe() {
@@ -76,8 +80,23 @@ export class CategoryService {
 
   async remove(id: string) {
     try {
-      const category: Category = await this.findOneById(id);
-      const removedCategory = await this.repository.softRemove(category);
+      let removedCategory: Category;
+
+      await this.repository.manager.transaction(async (manager) => {
+        const category: Category = await this.findOneById(id);
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            category: {
+              id: category.id,
+            },
+          },
+        });
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        removedCategory = await manager.softRemove(category);
+      });
 
       await this.updateRecommenderDataframe();
 
@@ -93,12 +112,27 @@ export class CategoryService {
     }
 
     try {
-      const categories: Category[] = await this.repository.find({
-        where: {
-          id: In(ids),
-        },
+      let removedCategories: Category[] = [];
+
+      await this.repository.manager.transaction(async (manager) => {
+        const categories: Category[] = await this.repository.find({
+          where: {
+            id: In(ids),
+          },
+        });
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            category: {
+              id: In(ids),
+            },
+          },
+        });
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        removedCategories = await this.repository.softRemove(categories);
       });
-      const removedCategories = await this.repository.softRemove(categories);
 
       await this.updateRecommenderDataframe();
 

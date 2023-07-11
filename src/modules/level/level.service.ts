@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { Level } from './entities/level.entity';
@@ -15,6 +15,8 @@ import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper
 import { REDIS_PREFIX } from 'src/common/constants/redis';
 import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
 import { Cache } from 'cache-manager';
+import { Recipe } from '@app/recipe/entities';
+import { RecipeService } from '@app/recipe/recipe.service';
 
 @Injectable()
 export class LevelService {
@@ -23,6 +25,8 @@ export class LevelService {
     private cacheManager: Cache,
     @Inject(LevelProvider.REPOSITORY)
     private readonly repository: Repository<Level>,
+    @Inject(forwardRef(() => RecipeService))
+    private readonly recipeService: RecipeService,
   ) {}
 
   private async updateRecommenderDataframe() {
@@ -81,8 +85,23 @@ export class LevelService {
 
   async remove(id: string) {
     try {
-      const level: Level = await this.findOneById(id);
-      const removedLevel = await this.repository.softRemove(level);
+      let removedLevel: Level;
+
+      await this.repository.manager.transaction(async (manager) => {
+        const level: Level = await this.findOneById(id);
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            level: {
+              id: level.id,
+            },
+          },
+        });
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        removedLevel = await manager.softRemove(Level, level);
+      });
 
       await this.updateRecommenderDataframe();
 
@@ -98,12 +117,27 @@ export class LevelService {
     }
 
     try {
-      const levels: Level[] = await this.repository.find({
-        where: {
-          id: In(ids),
-        },
+      let removedLevels: Level[] = [];
+
+      await this.repository.manager.transaction(async (manager) => {
+        const levels: Level[] = await this.repository.find({
+          where: {
+            id: In(ids),
+          },
+        });
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            level: {
+              id: In(ids),
+            },
+          },
+        });
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        removedLevels = await manager.softRemove(Level, levels);
       });
-      const removedLevels = await this.repository.softRemove(levels);
 
       await this.updateRecommenderDataframe();
 

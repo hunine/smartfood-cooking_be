@@ -1,8 +1,8 @@
 import { Diary } from '@app/diary/entities';
 import { Recipe } from '@app/recipe/entities';
+import { BaseEntity } from '@base/base.entity';
 import { TypeOfMeal } from 'src/common/enums/type-of-meal.enum';
 import {
-  BaseEntity,
   Column,
   Entity,
   JoinColumn,

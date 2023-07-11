@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateCuisineDto } from './dto/create-cuisine.dto';
 import { UpdateCuisineDto } from './dto/update-cuisine.dto';
 import { Cuisine } from './entities';
@@ -14,6 +14,8 @@ import {
 import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper';
 import { RECOMMENDER_SERVICE_STATUS, REDIS_PREFIX } from 'src/common/constants';
 import { Cache } from 'cache-manager';
+import { RecipeService } from '@app/recipe/recipe.service';
+import { Recipe } from '@app/recipe/entities';
 
 @Injectable()
 export class CuisineService {
@@ -22,6 +24,8 @@ export class CuisineService {
     private cacheManager: Cache,
     @Inject(CuisineProvider.REPOSITORY)
     private readonly repository: Repository<Cuisine>,
+    @Inject(forwardRef(() => RecipeService))
+    private readonly recipeService: RecipeService,
   ) {}
 
   private async updateRecommenderDataframe() {
@@ -76,8 +80,23 @@ export class CuisineService {
 
   async remove(id: string) {
     try {
-      const cuisine: Cuisine = await this.findOneById(id);
-      const removedCuisine = await this.repository.softRemove(cuisine);
+      let removedCuisine: Cuisine;
+
+      await this.repository.manager.transaction(async (manager) => {
+        const cuisine: Cuisine = await this.findOneById(id);
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            cuisine: {
+              id: cuisine.id,
+            },
+          },
+        });
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        removedCuisine = await this.repository.softRemove(cuisine);
+      });
 
       await this.updateRecommenderDataframe();
 
@@ -93,15 +112,27 @@ export class CuisineService {
     }
 
     try {
-      const cuisineArray: Cuisine[] = await this.repository.find({
-        where: {
-          id: In(ids),
-        },
-      });
+      let removedCuisineArray: Cuisine[] = [];
 
-      const removedCuisineArray = await this.repository.softRemove(
-        cuisineArray,
-      );
+      await this.repository.manager.transaction(async (manager) => {
+        const cuisineArray: Cuisine[] = await this.repository.find({
+          where: {
+            id: In(ids),
+          },
+        });
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            cuisine: {
+              id: In(ids),
+            },
+          },
+        });
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        removedCuisineArray = await this.repository.softRemove(cuisineArray);
+      });
 
       await this.updateRecommenderDataframe();
 
