@@ -75,6 +75,10 @@ export class IngredientService {
     });
   }
 
+  async findAllWithoutPagination(): Promise<Ingredient[]> {
+    return this.repository.find({});
+  }
+
   async findOneById(id: string): Promise<Ingredient> {
     return this.repository.findOneByOrFail({ id });
   }

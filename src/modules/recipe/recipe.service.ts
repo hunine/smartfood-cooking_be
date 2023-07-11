@@ -494,7 +494,19 @@ export class RecipeService {
       const recommendRecipes = await this.cacheManager.get(key);
 
       if (recommendRecipes) {
-        return recommendRecipes;
+        const promiseArray = recommendRecipes.map((recipeName) => {
+          return this.repository.findOne({
+            where: { name: recipeName },
+            relations: {
+              level: true,
+              category: true,
+              cuisine: true,
+              media: true,
+            },
+          });
+        });
+
+        return Promise.all(promiseArray);
       } else {
         const cookingHistory =
           await this.cookingHistoryService.findHistoryByUser(userEmail);
@@ -514,6 +526,7 @@ export class RecipeService {
         }
         const recipes = await this.repository.find(options);
         const data = {
+          user_email: userEmail,
           user_recipes: recipes.map((recipe) => recipe.name),
         };
         const url = `${RECOMMENDER_SERVICE.URL}/recommend`;
@@ -522,6 +535,7 @@ export class RecipeService {
             authorization: RECOMMENDER_SERVICE.API_KEY,
           },
         });
+
         const promiseArray = recommendResult.data.map((recipeName) => {
           return this.repository.findOne({
             where: { name: recipeName },
@@ -535,7 +549,6 @@ export class RecipeService {
         });
 
         const recommendRecipes = await Promise.all(promiseArray);
-        await this.cacheManager.set(key, recommendRecipes);
 
         return recommendRecipes;
       }
