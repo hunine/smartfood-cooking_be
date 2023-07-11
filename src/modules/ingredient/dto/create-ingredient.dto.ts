@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDecimal, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class CreateIngredientDto {
   @ApiProperty()
@@ -8,22 +8,22 @@ export class CreateIngredientDto {
   public name!: string;
 
   @ApiProperty()
-  @IsDecimal()
+  @IsPositive()
   @IsOptional()
   public kcal: number;
 
   @ApiProperty()
-  @IsDecimal()
+  @IsPositive()
   @IsOptional()
   public carbs: number;
 
   @ApiProperty()
-  @IsDecimal()
+  @IsPositive()
   @IsOptional()
   public protein: number;
 
   @ApiProperty()
-  @IsDecimal()
+  @IsPositive()
   @IsOptional()
   public fat: number;
 }

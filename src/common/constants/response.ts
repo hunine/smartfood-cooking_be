@@ -31,6 +31,10 @@ export const RESPONSE_MESSAGES = Object.freeze({
   INGREDIENT: {
     GET_INGREDIENT_SUCCESS: 'Get ingredient successful',
     GET_INGREDIENT_ERROR: 'Get ingredient error',
+    CREATE_INGREDIENT_SUCCESS: 'Create ingredient successful',
+    CREATE_INGREDIENT_ERROR: 'Create ingredient error',
+    UPDATE_INGREDIENT_SUCCESS: 'Update ingredient successful',
+    UPDATE_INGREDIENT_ERROR: 'Update ingredient error',
   },
   RECIPE_RATING: {
     RATING_SUCCESS: 'Rating successful',
