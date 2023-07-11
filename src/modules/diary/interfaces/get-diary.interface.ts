@@ -7,6 +7,7 @@ interface Meal {
   carbs: number;
   protein: number;
   fat: number;
+  totalPeople: number;
 }
 
 interface Exercise {

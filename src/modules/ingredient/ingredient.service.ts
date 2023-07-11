@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { Ingredient } from './entities';
@@ -17,6 +17,9 @@ import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper
 import { REDIS_PREFIX } from 'src/common/constants/redis';
 import { Cache } from 'cache-manager';
 import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
+import { RecipeService } from '@app/recipe/recipe.service';
+import { Recipe } from '@app/recipe/entities';
+import { Quantification } from '@app/quantification/entities';
 
 @Injectable()
 export class IngredientService {
@@ -25,6 +28,8 @@ export class IngredientService {
     private cacheManager: Cache,
     @Inject(IngredientProvider.REPOSITORY)
     private readonly repository: Repository<Ingredient>,
+    @Inject(forwardRef(() => RecipeService))
+    private readonly recipeService: RecipeService,
   ) {}
 
   private async updateRecommenderDataframe() {
@@ -96,8 +101,36 @@ export class IngredientService {
 
   async remove(id: string) {
     try {
-      const ingredient: Ingredient = await this.findOneById(id);
-      const removedIngredient = await this.repository.softRemove(ingredient);
+      let removedIngredient: Ingredient;
+
+      await this.repository.manager.transaction(async (manager) => {
+        const ingredient: Ingredient = await this.findOneById(id);
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            quantification: {
+              ingredient: {
+                id: ingredient.id,
+              },
+            },
+          },
+        });
+        const quantificationArray: Quantification[] = await manager.find(
+          Quantification,
+          {
+            where: {
+              ingredient: {
+                id: ingredient.id,
+              },
+            },
+          },
+        );
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        await manager.softRemove(Quantification, quantificationArray);
+        removedIngredient = await manager.softRemove(Ingredient, ingredient);
+      });
 
       await this.updateRecommenderDataframe();
 
@@ -113,12 +146,40 @@ export class IngredientService {
     }
 
     try {
-      const ingredients: Ingredient[] = await this.repository.find({
-        where: {
-          id: In(ids),
-        },
+      let removedIngredients: Ingredient[] = [];
+
+      await this.repository.manager.transaction(async (manager) => {
+        const ingredients: Ingredient[] = await this.repository.find({
+          where: {
+            id: In(ids),
+          },
+        });
+        const recipes: Recipe[] = await manager.find(Recipe, {
+          where: {
+            quantification: {
+              ingredient: {
+                id: In(ids),
+              },
+            },
+          },
+        });
+        const quantificationArray: Quantification[] = await manager.find(
+          Quantification,
+          {
+            where: {
+              ingredient: {
+                id: In(ids),
+              },
+            },
+          },
+        );
+
+        await this.recipeService.multipleRemove(
+          recipes.map((recipe) => recipe.id),
+        );
+        await manager.softRemove(Quantification, quantificationArray);
+        removedIngredients = await this.repository.softRemove(ingredients);
       });
-      const removedIngredients = await this.repository.softRemove(ingredients);
 
       await this.updateRecommenderDataframe();
 

@@ -106,6 +106,7 @@ export class DiaryService {
             carbs: item.carbs || 0,
             protein: item.protein || 0,
             fat: item.fat || 0,
+            totalPeople: item.totalPeople || 1,
           });
         });
 

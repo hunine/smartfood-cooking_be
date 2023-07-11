@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Module, forwardRef } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { RecipeController } from './recipe.controller';
 import { LevelModule } from 'src/modules/level/level.module';
@@ -35,7 +35,7 @@ import * as redisStore from 'cache-manager-redis-store';
       name: 'email',
     }),
     DatabaseModule,
-    LevelModule,
+    forwardRef(() => LevelModule),
     CategoryModule,
     CuisineModule,
     IngredientModule,
