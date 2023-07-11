@@ -224,6 +224,9 @@ export class DiaryService {
             exercise: {
               id: exercise.id,
             },
+            diary: {
+              id: diary.id,
+            },
           },
         },
       );
