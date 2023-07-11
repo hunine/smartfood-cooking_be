@@ -50,9 +50,9 @@ export class CuisineService {
     return paginate(query, this.repository, {
       sortableColumns: ['id', 'name'],
       nullSort: 'last',
-      defaultSortBy: [['id', 'DESC']],
+      defaultSortBy: [['updatedAt', 'DESC']],
       searchableColumns: ['name'],
-      select: ['id', 'name'],
+      select: ['id', 'name', 'updatedAt'],
       filterableColumns: {
         name: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
       },

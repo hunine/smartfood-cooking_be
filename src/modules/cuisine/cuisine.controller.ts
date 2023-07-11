@@ -32,13 +32,13 @@ export class CuisineController {
   }
 
   @Post()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async create(@Body() createCuisineDto: CreateCuisineDto) {
     return this.cuisineService.create(createCuisineDto);
   }
 
   @Patch(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateCuisineDto: UpdateCuisineDto,
@@ -47,13 +47,13 @@ export class CuisineController {
   }
 
   @Delete(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.cuisineService.remove(id);
   }
 
   @Delete()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.cuisineService.multipleRemove(ids);
   }

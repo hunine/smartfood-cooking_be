@@ -32,13 +32,13 @@ export class CategoryController {
   }
 
   @Post()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
 
   @Patch(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -47,13 +47,13 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.categoryService.remove(id);
   }
 
   @Delete()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.categoryService.multipleRemove(ids);
   }

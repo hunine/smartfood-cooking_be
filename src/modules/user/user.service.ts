@@ -26,6 +26,8 @@ import { DiaryService } from '@app/diary/diary.service';
 import { Diary } from '@app/diary/entities';
 import { NutritionHelper } from 'src/helpers';
 import { PracticeModeLabel } from 'src/common/enums/practice-mode.enum';
+import { UpRoleDto } from './dto/up-role.dto';
+import { Role } from 'src/common/enums/role.enum';
 
 @Injectable()
 export class UserService {
@@ -67,8 +69,22 @@ export class UserService {
     return this.repository.save(user);
   }
 
-  async updateInfo(email: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async updateMyInfo(
+    email: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
     const user = await this.repository.findOneByOrFail({ email });
+
+    const newUser = await this.repository.save({
+      ...user,
+      ...updateUserDto,
+    });
+    delete newUser.password;
+    return newUser;
+  }
+
+  async updateInfo(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.repository.findOneByOrFail({ id });
 
     const newUser = await this.repository.save({
       ...user,
@@ -168,9 +184,17 @@ export class UserService {
     return paginate(query, this.repository, {
       sortableColumns: ['id', 'firstName', 'lastName', 'email'],
       nullSort: 'last',
-      defaultSortBy: [['id', 'DESC']],
+      defaultSortBy: [['updatedAt', 'DESC']],
       searchableColumns: ['firstName', 'lastName', 'email'],
-      select: ['id', 'firstName', 'lastName', 'email', 'deletedAt'],
+      select: [
+        'id',
+        'firstName',
+        'lastName',
+        'email',
+        'role',
+        'deletedAt',
+        'updatedAt',
+      ],
       filterableColumns: {
         firstName: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
         lastName: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
@@ -243,4 +267,48 @@ export class UserService {
       throw error;
     }
   }
+
+  async upRole(userId: string, upRoleDto: UpRoleDto) {
+    try {
+      const user = await this.repository.findOneOrFail({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (user.role === Role.SUPER_ADMIN) {
+        throw new BadRequestException('Can not update role for super admin');
+      }
+
+      user.role = upRoleDto.role as any;
+
+      const newUser = await this.repository.save(user);
+      delete newUser.password;
+      return newUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // async deactivateUser(userId: string) {
+  //   try {
+  //     const user = await this.repository.findOneOrFail({
+  //       where: {
+  //         id: userId,
+  //       },
+  //     });
+
+  //     if (user.role === Role.SUPER_ADMIN) {
+  //       throw new BadRequestException('Can not deactivate super admin');
+  //     }
+
+  //     user.deletedAt = DateTimeHelper.getTodayString();
+
+  //     const newUser = await this.repository.save(user);
+  //     delete newUser.password;
+  //     return newUser;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }

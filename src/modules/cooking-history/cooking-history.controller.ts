@@ -15,7 +15,7 @@ export class CookingHistoryController {
   constructor(private readonly cookingHistoryService: CookingHistoryService) {}
 
   @Get('recipes-statistics')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async getRecipesStatistics(
     @Query('from') from: string,
     @Query('to') to: string,

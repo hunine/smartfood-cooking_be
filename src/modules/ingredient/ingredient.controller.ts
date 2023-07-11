@@ -28,7 +28,7 @@ export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
   @Get('count')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async countAll(@Res() response) {
     try {
       const data = await this.ingredientService.countAll();
@@ -56,13 +56,13 @@ export class IngredientController {
   }
 
   @Post()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async create(@Body() createIngredientDto: CreateIngredientDto) {
     return this.ingredientService.create(createIngredientDto);
   }
 
   @Patch(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateIngredientDto: UpdateIngredientDto,
@@ -71,13 +71,13 @@ export class IngredientController {
   }
 
   @Delete(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.ingredientService.remove(id);
   }
 
   @Delete()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.ingredientService.multipleRemove(ids);
   }

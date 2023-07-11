@@ -55,7 +55,7 @@ export class IngredientService {
       relations: ['media'],
       sortableColumns: ['id', 'name'],
       nullSort: 'last',
-      defaultSortBy: [['id', 'DESC']],
+      defaultSortBy: [['updatedAt', 'DESC']],
       searchableColumns: ['name'],
       select: [
         'id',
@@ -67,6 +67,7 @@ export class IngredientService {
         'protein',
         'media.id',
         'media.url',
+        'updatedAt',
       ],
       filterableColumns: {
         name: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],

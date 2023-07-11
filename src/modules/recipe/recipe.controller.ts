@@ -67,7 +67,7 @@ export class RecipeController {
   }
 
   @Get('count')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async countAll(@Res() response) {
     try {
       const data = await this.recipeService.countAll();
@@ -122,7 +122,7 @@ export class RecipeController {
   }
 
   @Post()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     return this.recipeService.create(createRecipeDto);
   }
@@ -150,7 +150,7 @@ export class RecipeController {
   }
 
   @Put(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
@@ -159,13 +159,13 @@ export class RecipeController {
   }
 
   @Delete(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.recipeService.remove(id);
   }
 
   @Delete()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.recipeService.multipleRemove(ids);
   }

@@ -32,13 +32,13 @@ export class LevelController {
   }
 
   @Post()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async create(@Body() createLevelDto: CreateLevelDto) {
     return this.levelService.create(createLevelDto);
   }
 
   @Patch(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async update(
     @Param('id') id: string,
     @Body() updateLevelDto: UpdateLevelDto,
@@ -47,13 +47,13 @@ export class LevelController {
   }
 
   @Delete(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async remove(@Param('id') id: string) {
     return this.levelService.remove(id);
   }
 
   @Delete()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async multipleRemove(@Query('ids') ids: string[]) {
     return this.levelService.multipleRemove(ids);
   }
