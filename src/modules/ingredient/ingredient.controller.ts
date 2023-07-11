@@ -50,6 +50,12 @@ export class IngredientController {
     return this.ingredientService.findAll(query);
   }
 
+  @Get('all')
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
+  async findAllWithoutPagination() {
+    return this.ingredientService.findAllWithoutPagination();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.ingredientService.findOneById(id);
