@@ -255,7 +255,7 @@ export class RecipeService {
 
     const recipeNutrition = await this.calculateRecipeNutrition(recipe.id);
 
-    return { recipe, ...recipeNutrition };
+    return { ...recipe, ...recipeNutrition };
   }
 
   async getRecipeToCook(id: string, userEmail = ''): Promise<Recipe> {
