@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Patch,
   Req,
   Res,
@@ -26,6 +28,7 @@ import { TransformInterceptor } from 'src/core/interceptors/transform.intercepto
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from 'src/common/enums/role.enum';
+import { UpRoleDto } from './dto/up-role.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -57,16 +60,39 @@ export class UserController {
 
   @Patch('info')
   @AuthenticateGuard()
-  async updateInfo(
+  async updateMyInfo(
     @Req() request,
     @Res() response,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
-      const data = await this.userService.updateInfo(
+      const data = await this.userService.updateMyInfo(
         request.user.email,
         updateUserDto,
       );
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_SUCCESS,
+        data,
+        true,
+      ).toOkResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_ERROR,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
+  @Patch('info/:id')
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
+  async updateInfo(
+    @Res() response,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    try {
+      const data = await this.userService.updateInfo(id, updateUserDto);
 
       return new ResponseSuccess(
         RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_SUCCESS,
@@ -108,7 +134,7 @@ export class UserController {
   }
 
   @Get('count')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async countAll(@Res() response) {
     try {
       const data = await this.userService.countAll();
@@ -126,8 +152,37 @@ export class UserController {
   }
 
   @Get()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async findAll(@Paginate() query: PaginateQuery) {
     return this.userService.findAll(query);
   }
+
+  @Patch('up-role/:userId')
+  @AuthorizeGuard([Role.SUPER_ADMIN])
+  async upRole(
+    @Res() response,
+    @Param('userId') userId: string,
+    @Body() upRoleDto: UpRoleDto,
+  ) {
+    try {
+      const data = await this.userService.upRole(userId, upRoleDto);
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_SUCCESS,
+        data,
+        true,
+      ).toOkResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.USER.UPDATE_USER_INFO_ERROR,
+        error,
+      ).sendResponse(response);
+    }
+  }
+
+  // @Delete('deactivate/:userId')
+  // @AuthorizeGuard([Role.SUPER_ADMIN])
+  // async deactivateUser(@Param('userId') userId: string) {
+  //   return this.userService.deactivateUser(userId);
+  // }
 }

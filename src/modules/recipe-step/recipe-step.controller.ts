@@ -20,7 +20,7 @@ export class RecipeStepController {
   constructor(private readonly recipeStepService: RecipeStepService) {}
 
   @Post()
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   create(@Body() createRecipeStepDto: CreateRecipeStepDto) {
     return this.recipeStepService.create(createRecipeStepDto);
   }
@@ -36,7 +36,7 @@ export class RecipeStepController {
   }
 
   @Patch(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   update(
     @Param('id') id: string,
     @Body() updateRecipeStepDto: UpdateRecipeStepDto,
@@ -45,7 +45,7 @@ export class RecipeStepController {
   }
 
   @Delete(':id')
-  @AuthorizeGuard([Role.ADMIN])
+  @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   remove(@Param('id') id: string) {
     return this.recipeStepService.remove(+id);
   }
