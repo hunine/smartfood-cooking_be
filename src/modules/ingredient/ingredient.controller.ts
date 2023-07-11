@@ -8,6 +8,9 @@ import {
   Delete,
   Query,
   Res,
+  UseFilters,
+  UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import { IngredientService } from './ingredient.service';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
@@ -21,9 +24,15 @@ import {
 import { RESPONSE_MESSAGES } from 'src/common/constants';
 import { AuthorizeGuard } from '@app/auth/decorators/auth.decorator';
 import { Role } from 'src/common/enums/role.enum';
+import { HttpExceptionFilter } from 'src/core/filters/http-exception.filter';
+import { LoggingInterceptor } from 'src/core/interceptors/logging.interceptor';
+import { TransformInterceptor } from 'src/core/interceptors/transform.interceptor';
+import { response } from 'express';
 
 @ApiTags('ingredients')
 @Controller('ingredients')
+@UseFilters(new HttpExceptionFilter())
+@UseInterceptors(LoggingInterceptor, TransformInterceptor)
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
@@ -57,17 +66,47 @@ export class IngredientController {
 
   @Post()
   @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
-  async create(@Body() createIngredientDto: CreateIngredientDto) {
-    return this.ingredientService.create(createIngredientDto);
+  async create(
+    @Res() response,
+    @Body() createIngredientDto: CreateIngredientDto,
+  ) {
+    try {
+      const data = this.ingredientService.create(createIngredientDto);
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.INGREDIENT.CREATE_INGREDIENT_SUCCESS,
+        data,
+        true,
+      ).toNoContentResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.INGREDIENT.CREATE_INGREDIENT_ERROR,
+        error,
+      ).sendResponse(response);
+    }
   }
 
   @Patch(':id')
   @AuthorizeGuard([Role.SUPER_ADMIN, Role.ADMIN])
   async update(
+    @Res() response,
     @Param('id') id: string,
     @Body() updateIngredientDto: UpdateIngredientDto,
   ) {
-    return this.ingredientService.update(id, updateIngredientDto);
+    try {
+      const data = await this.ingredientService.update(id, updateIngredientDto);
+
+      return new ResponseSuccess(
+        RESPONSE_MESSAGES.INGREDIENT.UPDATE_INGREDIENT_SUCCESS,
+        data,
+        true,
+      ).toNoContentResponse(response);
+    } catch (error) {
+      return new ResponseError(
+        RESPONSE_MESSAGES.INGREDIENT.UPDATE_INGREDIENT_ERROR,
+        error,
+      ).sendResponse(response);
+    }
   }
 
   @Delete(':id')

@@ -33,7 +33,7 @@ export default class DataSeeder implements Seeder {
     const categoryMapping = {};
 
     (await dataSource.getRepository(Category).find()).forEach((item) => {
-      categoryMapping[item.name] = item;
+      categoryMapping[item.name.toLowerCase()] = item;
     });
 
     return categoryMapping;
@@ -59,7 +59,7 @@ export default class DataSeeder implements Seeder {
     const cuisineMapping = {};
 
     (await dataSource.getRepository(Cuisine).find()).forEach((item) => {
-      cuisineMapping[item.name] = item;
+      cuisineMapping[item.name.toLowerCase()] = item;
     });
 
     return cuisineMapping;
@@ -76,7 +76,7 @@ export default class DataSeeder implements Seeder {
     const levelMapping = {};
 
     (await dataSource.getRepository(Level).find()).forEach((item) => {
-      levelMapping[item.name] = item;
+      levelMapping[item.name.toLowerCase()] = item;
     });
 
     return levelMapping;
@@ -108,7 +108,7 @@ export default class DataSeeder implements Seeder {
     const ingredientMapping = {};
 
     (await dataSource.getRepository(Ingredient).find()).forEach((item) => {
-      ingredientMapping[item.name] = item;
+      ingredientMapping[item.name.toLowerCase()] = item;
     });
 
     return ingredientMapping;
@@ -126,9 +126,9 @@ export default class DataSeeder implements Seeder {
       media.url = recipesData[i].media;
       recipe.name = recipesData[i].name;
       recipe.description = recipesData[i].description;
-      recipe.category = categoryMapping[recipesData[i].category];
-      recipe.cuisine = cuisineMapping[recipesData[i].cuisine];
-      recipe.level = levelMapping[recipesData[i].level];
+      recipe.category = categoryMapping[recipesData[i].category.toLowerCase()];
+      recipe.cuisine = cuisineMapping[recipesData[i].cuisine.toLowerCase()];
+      recipe.level = levelMapping[recipesData[i].level.toLowerCase()];
       recipe.media = [media];
 
       await dataSource.getRepository(Media).save(media);
@@ -140,7 +140,7 @@ export default class DataSeeder implements Seeder {
     const recipeMapping = {};
 
     (await dataSource.getRepository(Recipe).find()).forEach((item) => {
-      recipeMapping[item.name] = item;
+      recipeMapping[item.name.toLowerCase()] = item;
     });
 
     return recipeMapping;
@@ -160,7 +160,9 @@ export default class DataSeeder implements Seeder {
       const averageWeight = new AverageWeight();
 
       averageWeight.ingredient =
-        ingredientMapping[averageWeightDataArray[i].ingredient_name];
+        ingredientMapping[
+          averageWeightDataArray[i].ingredient_name.toLowerCase()
+        ];
       averageWeight.unit = averageWeightDataArray[i].unit;
       averageWeight.gram = averageWeightDataArray[i].gram;
 
@@ -191,8 +193,10 @@ export default class DataSeeder implements Seeder {
       const quantification = new Quantification();
 
       if (
-        !recipeMapping[quantificationDataArray[i].recipe_name] ||
-        !ingredientMapping[quantificationDataArray[i].ingredient_name] ||
+        !recipeMapping[quantificationDataArray[i].recipe_name.toLowerCase()] ||
+        !ingredientMapping[
+          quantificationDataArray[i].ingredient_name.toLowerCase()
+        ] ||
         !quantificationDataArray[i].value ||
         !quantificationDataArray[i].unit
       ) {
@@ -200,9 +204,11 @@ export default class DataSeeder implements Seeder {
       }
 
       quantification.recipe =
-        recipeMapping[quantificationDataArray[i].recipe_name];
+        recipeMapping[quantificationDataArray[i].recipe_name.toLowerCase()];
       quantification.ingredient =
-        ingredientMapping[quantificationDataArray[i].ingredient_name];
+        ingredientMapping[
+          quantificationDataArray[i].ingredient_name.toLowerCase()
+        ];
       quantification.value = quantificationDataArray[i].value;
       quantification.unit = quantificationDataArray[i].unit;
 
@@ -229,13 +235,14 @@ export default class DataSeeder implements Seeder {
     for (let i = 0; i < recipeStepsData.length; i += 1) {
       const recipeStep = new RecipeStep();
 
-      if (!recipeMapping[recipeStepsData[i].recipe_name]) {
+      if (!recipeMapping[recipeStepsData[i].recipe_name.toLowerCase()]) {
         continue;
       }
 
       recipeStep.content = recipeStepsData[i].content;
       recipeStep.order = recipeStepsData[i].order;
-      recipeStep.recipe = recipeMapping[recipeStepsData[i].recipe_name];
+      recipeStep.recipe =
+        recipeMapping[recipeStepsData[i].recipe_name.toLowerCase()];
       recipeStep.media = [];
 
       if (recipeStepsData[i] && !recipeStepsData[i].media) {
