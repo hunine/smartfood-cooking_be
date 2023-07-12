@@ -38,6 +38,7 @@ import { RecommenderServiceHelper } from 'src/helpers/recommender-service.helper
 import { RECOMMENDER_SERVICE_STATUS } from 'src/common/constants';
 import { CONVERT_GRAM_UNIT } from 'src/common/constants/nutrition';
 import { Meal } from '@app/meal/entities';
+import { Media } from '@app/media/entities';
 
 @Injectable()
 export class RecipeService {
@@ -76,12 +77,19 @@ export class RecipeService {
         createRecipeDto.cuisineId,
       );
 
+      // Create media
+      const media = await manager.create(Media, {
+        url: 'https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,h_1080,q_100,w_1080/v1/gcs/platform-data-dsc/chapter_banners/238560151_611157220289705_5018897076969677410_n.jpg',
+      });
+      const newMedia = await manager.save(media);
+
       // Create recipe
       const recipe: Recipe = this.repository.create({
         ...createRecipeDto,
         level,
         cuisine,
         category,
+        media: [newMedia],
       });
 
       resultRecipe = await manager.save(recipe);
